@@ -51,10 +51,12 @@ def zip_batch(directory):
                 zipf.write(os.path.join(root, file), file)
     print(f"{zip_filename} created.")
 
-def download_images_in_batches(df, batch_size=100):
+def download_images_in_batches(df, batch_size=500):
     os.makedirs('data/raw/images', exist_ok=True)
     total_successful_downloads = 0
     total_failed_downloads = 0
+
+    print(f"Total number of rows in the dataset: {len(df)}")
 
     for i in range(0, len(df), batch_size):
         batch_df = df.iloc[i:i+batch_size]
@@ -77,13 +79,14 @@ def save_data(df, filename, directory):
     os.makedirs(directory, exist_ok=True)
     df.to_csv(os.path.join(directory, filename), index=False)
 
+
 if __name__ == "__main__":
     github_url = 'https://raw.githubusercontent.com/Bal67/SkinDetection/main/data/fitzpatrick17k.csv'
     df = load_data_from_github(github_url)
     df = preprocess_data(df)
-    download_images_in_batches(df, batch_size=100)
+    download_images_in_batches(df, batch_size=500)
     train, val, test = split_data(df)
-    save_data(train, 'train.csv', '/content/drive/MyDrive/SCIN_Project/data', index=False)
+    save_data(train, 'train.csv', '/content/drive/MyDrive/SCIN_Project/data')
     save_data(val, 'val.csv', '/content/drive/MyDrive/SCIN_Project/data')
     save_data(test, 'test.csv', '/content/drive/MyDrive/SCIN_Project/data')
 
