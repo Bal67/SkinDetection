@@ -19,8 +19,7 @@ def download_image(url, save_path):
         img = Image.open(BytesIO(response.content))
         img.save(save_path)
         return True
-    except Exception as e:
-        print(f"Failed to download {url}: {e}")
+    except Exception:
         return False
 
 def download_images(df, batch_size=100):
