@@ -18,19 +18,28 @@ def download_image(url, save_path):
         response = requests.get(url)
         img = Image.open(BytesIO(response.content))
         img.save(save_path)
+        return True
     except Exception as e:
         print(f"Failed to download {url}: {e}")
+        return False
 
 def download_images(df, batch_size=100):
     os.makedirs('data/raw/images', exist_ok=True)
+    successful_downloads = 0
+    failed_downloads = 0
     for i in range(0, len(df), batch_size):
         batch_df = df.iloc[i:i+batch_size]
         batch_dir = f'data/raw/images/batch_{i//batch_size + 1}'
         os.makedirs(batch_dir, exist_ok=True)
         for index, row in batch_df.iterrows():
             save_path = os.path.join(batch_dir, f"{row['md5hash']}.jpg")
-            download_image(row['url'], save_path)
+            if download_image(row['url'], save_path):
+                successful_downloads += 1
+            else:
+                failed_downloads += 1
         zip_batch(batch_dir)
+    print(f"Successfully downloaded {successful_downloads} images.")
+    print(f"Failed to download {failed_downloads} images.")
 
 def zip_batch(directory):
     zip_filename = f"{directory}.zip"
