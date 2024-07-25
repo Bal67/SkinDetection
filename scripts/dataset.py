@@ -11,6 +11,8 @@ def load_data_from_github(url):
 
 def preprocess_data(df):
     df = df.dropna(subset=['url'])  # Drop rows without URLs
+    df = df.dropna(subset=['label'])  # Drop rows without labels
+    df = df[~df['url'].str.contains('dermaamin.com')]  # Remove rows with URLs from dermaamin.com
     return df
 
 def download_image(url, save_path):
@@ -22,7 +24,7 @@ def download_image(url, save_path):
     except Exception:
         return False
 
-def download_images(df, batch_size=100):
+'''def download_images(df, batch_size=100):
     os.makedirs('data/raw/images', exist_ok=True)
     successful_downloads = 0
     failed_downloads = 0
@@ -39,6 +41,7 @@ def download_images(df, batch_size=100):
         zip_batch(batch_dir)
     print(f"Successfully downloaded {successful_downloads} images.")
     print(f"Failed to download {failed_downloads} images.")
+
 
 def zip_batch(directory):
     zip_filename = f"{directory}.zip"
@@ -66,3 +69,23 @@ if __name__ == "__main__":
     save_data(train, 'train.csv', '/content/drive/MyDrive/SCIN_Project/data', index=False)
     save_data(val, 'val.csv', '/content/drive/MyDrive/SCIN_Project/data')
     save_data(test, 'test.csv', '/content/drive/MyDrive/SCIN_Project/data')
+'''
+def attempt_download_images(df):
+    os.makedirs('data/raw/images', exist_ok=True)
+    successful_downloads = 0
+    failed_downloads = 0
+    for index, row in df.iterrows():
+        save_path = os.path.join('data/raw/images', f"{row['md5hash']}.jpg")
+        if download_image(row['url'], save_path):
+            successful_downloads += 1
+        else:
+            failed_downloads += 1
+    print(f"Successfully downloaded {successful_downloads} images.")
+    print(f"Failed to download {failed_downloads} images.")
+    return successful_downloads, failed_downloads
+
+if __name__ == "__main__":
+    github_url = 'https://raw.githubusercontent.com/Bal67/SkinDetection/main/data/fitzpatrick17k.csv'
+    df = load_data_from_github(github_url)
+    df = preprocess_data(df)
+    successful_downloads, failed_downloads = attempt_download_images(df)
