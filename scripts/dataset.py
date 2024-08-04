@@ -77,10 +77,19 @@ if __name__ == "__main__":
     github_url = 'https://raw.githubusercontent.com/Bal67/SkinDetection/main/data/fitzpatrick17k.csv'
     s3_bucket = '540skinappbucket'
 
-    # Initialize S3 client
-    s3_client = boto3.client('s3')
+    # Get AWS credentials from environment variables
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_REGION = os.getenv('AWS_REGION')
+
+    # Initialize S3 client with credentials
+    s3_client = boto3.client('s3', 
+                             aws_access_key_id=AWS_ACCESS_KEY_ID, 
+                             aws_secret_access_key=AWS_SECRET_ACCESS_KEY, 
+                             region_name=AWS_REGION)
 
     df = load_data_from_github(github_url)
     df = preprocess_data(df)
     download_images_in_batches(df, s3_bucket, batch_size=500)
-    save_data(df, 'fitzpatrick17k.csv', 'data/processed')
+    save_data(df, 'fitzpatrick17k.csv', '/content/drive/MyDrive/SCIN_Project/data')
+
