@@ -80,10 +80,19 @@ def extract_features_from_images(df, bucket, model, feature_dir):
             missing_images += 1
             continue
         
+        # Check if features already exist to avoid redundant processing
+        feature_file = os.path.join(feature_dir, f"{row['md5hash']}_features.npy")
+        if os.path.exists(feature_file):
+            print(f"Features for image {img_key} already exist. Skipping.")
+            continue
+        
         # Original image
         img_tensor = preprocess_image(img)
         features = extract_features(model, img_tensor)
         features_list.append(features)
+        
+        # Save original image features
+        np.save(feature_file, features)
         
         # Augmentations based on skin tone
         skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
@@ -95,20 +104,19 @@ def extract_features_from_images(df, bucket, model, feature_dir):
             augmentations = [inverse_color, horizontal_flip, vertical_flip, augment_image]
         
         augmented_images = [augmentations[np.random.randint(len(augmentations))](img) for _ in range(num_augmentations)]
-        for aug_img in augmented_images:
+        for i, aug_img in enumerate(augmented_images):
             augmented_tensor = preprocess_image(aug_img)
             augmented_features = extract_features(model, augmented_tensor)
             features_list.append(augmented_features)
+            
+            # Save augmented image features
+            aug_feature_file = os.path.join(feature_dir, f"{row['md5hash']}_aug_{i}_features.npy")
+            np.save(aug_feature_file, augmented_features)
     
+    print(f"Total missing images: {missing_images}")  # Log the number of missing images
     
     # Convert the list of features to a numpy array
     features_array = np.array(features_list)
-    
-    # Create the directory to save features if it doesn't exist
-    os.makedirs(feature_dir, exist_ok=True)
-    
-    # Save the features to a numpy file
-    np.save(os.path.join(feature_dir, 'image_features.npy'), features_array)
     
     return features_array
 
