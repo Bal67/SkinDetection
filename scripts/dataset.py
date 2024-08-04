@@ -112,4 +112,4 @@ if __name__ == "__main__":
     df = load_data_from_github(github_url)
     df = preprocess_data(df)
     download_images_in_batches(df, s3_bucket, batch_size=500)
-    save_data(df, 'fitzpatrick17k+_processed.csv', '/content/drive/MyDrive/SCIN_Project/data')
+    save_data(df, 'fitzpatrick17k_processed.csv', '/content/drive/MyDrive/SCIN_Project/data')
