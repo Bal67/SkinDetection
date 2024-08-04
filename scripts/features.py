@@ -58,6 +58,9 @@ def download_image_from_s3(bucket, key):
     except s3_client.exceptions.NoSuchKey:
         print(f"Image with key {key} does not exist.")
         return None
+    except Exception as e:
+        print(f"An error occurred while downloading the image: {e}")
+        return None
 
 # Function to classify skin tone based on the fitzpatrick scale
 def classify_skin_tone(fitzpatrick_scale):
@@ -71,6 +74,7 @@ def extract_features_from_images(df, bucket, model, feature_dir):
     features_list = []  # List to store features
     for index, row in df.iterrows():
         img_key = f"images/{row['md5hash']}.jpg"  # S3 key for the image
+        print(f"Processing image with key: {img_key}")  # Debugging line
         img = download_image_from_s3(bucket, img_key)  # Download the image
         if img is None:
             continue
@@ -123,7 +127,10 @@ if __name__ == "__main__":
     model.eval()  # Set the model to evaluation mode
 
     # Extract features
-    extract_features_from_images(df, s3_bucket, model, feature_dir)
+    try:
+        extract_features_from_images(df, s3_bucket, model, feature_dir)
+    except Exception as e:
+        print(f"An error occurred during feature extraction: {e}")
 
     # Test section
     print("Running tests...")
