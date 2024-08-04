@@ -49,7 +49,6 @@ def upload_to_s3(img, bucket, key):
 def download_and_upload_image(row, bucket):
     key = f"images/{row['md5hash']}.jpg"
     if image_exists_in_s3(bucket, key):
-        print(f"Image {key} already exists in S3. Skipping download.")
         return True
     img = download_image(row['url'])
     if img:
