@@ -72,11 +72,13 @@ def classify_skin_tone(fitzpatrick_scale):
 # Function to extract features from images and save them to a numpy file
 def extract_features_from_images(df, bucket, model, feature_dir):
     features_list = []  # List to store features
+    missing_images = 0  # Counter for missing images
     for index, row in df.iterrows():
         img_key = f"images/{row['md5hash']}.jpg"  # S3 key for the image
         print(f"Processing image with key: {img_key}")  # Debugging line
         img = download_image_from_s3(bucket, img_key)  # Download the image
         if img is None:
+            missing_images += 1
             continue
         
         # Original image
@@ -98,7 +100,9 @@ def extract_features_from_images(df, bucket, model, feature_dir):
             augmented_tensor = preprocess_image(aug_img)
             augmented_features = extract_features(model, augmented_tensor)
             features_list.append(augmented_features)
-        
+    
+    print(f"Total missing images: {missing_images}")  # Log the number of missing images
+    
     # Convert the list of features to a numpy array
     features_array = np.array(features_list)
     
