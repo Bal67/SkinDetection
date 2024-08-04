@@ -29,7 +29,7 @@ def upload_to_s3(img, bucket, key):
     img.save(buffer, 'JPEG')
     buffer.seek(0)
     s3_client.upload_fileobj(buffer, bucket, key)
-    print(f"Uploaded {key} to S3")
+
 
 def download_and_upload_image(row, bucket):
     img = download_image(row['url'])
