@@ -8,6 +8,7 @@ import torch
 import torchvision.transforms as transforms
 from torchvision import models
 import matplotlib.pyplot as plt
+from concurrent.futures import ThreadPoolExecutor
 
 # Function to load the dataset from a CSV file
 def load_data(filepath):
@@ -69,49 +70,60 @@ def classify_skin_tone(fitzpatrick_scale):
     else:
         return 'dark'
 
+# Helper function to process a single row
+def process_row(row, bucket, model, feature_dir):
+    features = []
+    img_key = f"images/{row['md5hash']}.jpg"  # S3 key for the image
+    img = download_image_from_s3(bucket, img_key)  # Download the image
+    if img is None:
+        return features, row['md5hash']
+    
+    # Check if features already exist to avoid redundant processing
+    feature_file = os.path.join(feature_dir, f"{row['md5hash']}_features.npy")
+    if os.path.exists(feature_file):
+        print(f"Features for image {img_key} already exist. Skipping.")
+        return features, row['md5hash']
+    
+    # Original image
+    img_tensor = preprocess_image(img)
+    features.append(extract_features(model, img_tensor))
+    
+    # Save original image features
+    np.save(feature_file, features[-1])
+    
+    # Augmentations based on skin tone
+    skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
+    if skin_tone == 'light':
+        num_augmentations = 1  # 1 additional image for light skin
+        augmentations = [inverse_color, augment_image]
+    else:
+        num_augmentations = 3  # 3 additional images for dark skin
+        augmentations = [inverse_color, horizontal_flip, vertical_flip, augment_image]
+    
+    augmented_images = [augmentations[np.random.randint(len(augmentations))](img) for _ in range(num_augmentations)]
+    for i, aug_img in enumerate(augmented_images):
+        augmented_tensor = preprocess_image(aug_img)
+        augmented_features = extract_features(model, augmented_tensor)
+        features.append(augmented_features)
+        
+        # Save augmented image features
+        aug_feature_file = os.path.join(feature_dir, f"{row['md5hash']}_aug_{i}_features.npy")
+        np.save(aug_feature_file, augmented_features)
+    
+    return features, None
+
 # Function to extract features from images and save them to a numpy file
 def extract_features_from_images(df, bucket, model, feature_dir):
     features_list = []  # List to store features
     missing_images = 0  # Counter for missing images
-    for index, row in df.iterrows():
-        img_key = f"images/{row['md5hash']}.jpg"  # S3 key for the image
-        img = download_image_from_s3(bucket, img_key)  # Download the image
-        if img is None:
-            missing_images += 1
-            continue
-        
-        # Check if features already exist to avoid redundant processing
-        feature_file = os.path.join(feature_dir, f"{row['md5hash']}_features.npy")
-        if os.path.exists(feature_file):
-            print(f"Features for image {img_key} already exist. Skipping.")
-            continue
-        
-        # Original image
-        img_tensor = preprocess_image(img)
-        features = extract_features(model, img_tensor)
-        features_list.append(features)
-        
-        # Save original image features
-        np.save(feature_file, features)
-        
-        # Augmentations based on skin tone
-        skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
-        if skin_tone == 'light':
-            num_augmentations = 1  # 1 additional image for light skin
-            augmentations = [inverse_color, augment_image]
-        else:
-            num_augmentations = 3  # 3 additional images for dark skin
-            augmentations = [inverse_color, horizontal_flip, vertical_flip, augment_image]
-        
-        augmented_images = [augmentations[np.random.randint(len(augmentations))](img) for _ in range(num_augmentations)]
-        for i, aug_img in enumerate(augmented_images):
-            augmented_tensor = preprocess_image(aug_img)
-            augmented_features = extract_features(model, augmented_tensor)
-            features_list.append(augmented_features)
-            
-            # Save augmented image features
-            aug_feature_file = os.path.join(feature_dir, f"{row['md5hash']}_aug_{i}_features.npy")
-            np.save(aug_feature_file, augmented_features)
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {executor.submit(process_row, row, bucket, model, feature_dir): index for index, row in df.iterrows()}
+        for future in futures:
+            result, missing_image = future.result()
+            if missing_image:
+                missing_images += 1
+            else:
+                features_list.extend(result)
     
     print(f"Total missing images: {missing_images}")  # Log the number of missing images
     
