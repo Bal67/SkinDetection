@@ -8,6 +8,7 @@ import torch
 import torchvision.transforms as transforms
 from torchvision import models
 import matplotlib.pyplot as plt
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Function to load the dataset from a CSV file
 def load_data(filepath):
@@ -59,7 +60,6 @@ def download_image_from_s3(bucket, key):
         print(f"Image with key {key} does not exist.")
         return None
     except Exception as e:
-        print(f"An error occurred while downloading the image: {e}")
         return None
 
 # Function to classify skin tone based on the fitzpatrick scale
@@ -69,21 +69,46 @@ def classify_skin_tone(fitzpatrick_scale):
     else:
         return 'dark'
 
-# Function to extract features from images and save them to a numpy file
+# Function to remove rows with missing images
+def remove_rows_with_missing_images(df, bucket):
+    def image_exists(row):
+        key = f"images/{row['md5hash']}.jpg"
+        try:
+            s3_client.head_object(Bucket=bucket, Key=key)
+            return True
+        except s3_client.exceptions.NoSuchKey:
+            return False
+    return df[df.apply(image_exists, axis=1)]
+
+# Function to check if features are already processed
+def features_already_processed(feature_dir, md5hash):
+    return os.path.exists(os.path.join(feature_dir, f'{md5hash}.npy'))
+
+# Function to extract features from images and save them to individual numpy files
 def extract_features_from_images(df, bucket, model, feature_dir):
+    os.makedirs(feature_dir, exist_ok=True)  # Ensure the feature directory exists
+    
+    # Remove rows with missing images
+    df = remove_rows_with_missing_images(df, bucket)
+    
     features_list = []  # List to store features
     missing_images = 0  # Counter for missing images
-    for index, row in df.iterrows():
+
+    def process_row(row):
         img_key = f"images/{row['md5hash']}.jpg"  # S3 key for the image
+
+        if features_already_processed(feature_dir, row['md5hash']):
+            print(f"Features for {img_key} already processed. Skipping.")
+            return None
+        
         img = download_image_from_s3(bucket, img_key)  # Download the image
         if img is None:
-            missing_images += 1
-            continue
+            return None
         
         # Original image
         img_tensor = preprocess_image(img)
         features = extract_features(model, img_tensor)
-        features_list.append(features)
+        np.save(os.path.join(feature_dir, f'{row["md5hash"]}.npy'), features)
         
         # Augmentations based on skin tone
         skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
@@ -98,19 +123,14 @@ def extract_features_from_images(df, bucket, model, feature_dir):
         for aug_img in augmented_images:
             augmented_tensor = preprocess_image(aug_img)
             augmented_features = extract_features(model, augmented_tensor)
-            features_list.append(augmented_features)
+            np.save(os.path.join(feature_dir, f'{row["md5hash"]}_aug_{np.random.randint(1000)}.npy'), augmented_features)
     
-    
-    # Convert the list of features to a numpy array
-    features_array = np.array(features_list)
-    
-    # Create the directory to save features if it doesn't exist
-    os.makedirs(feature_dir, exist_ok=True)
-    
-    # Save the features to a numpy file
-    np.save(os.path.join(feature_dir, 'image_features.npy'), features_array)
-    
-    return features_array
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(process_row, row) for _, row in df.iterrows()]
+        for future in as_completed(futures):
+            result = future.result()
+            if result is None:
+                missing_images += 1
 
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'  # S3 bucket name
