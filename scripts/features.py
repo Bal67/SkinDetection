@@ -102,7 +102,7 @@ def extract_features_from_images(df, bucket, model, feature_dir):
 
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'  # S3 bucket name
-    data_file = 'data/processed/fitzpatrick17k.csv'  # Path to the dataset CSV file
+    data_file = '/content/drive/MyDrive/SCIN_Project/fitzpatrick17k.csv'  # Path to the dataset CSV file
     feature_dir = '/content/drive/MyDrive/SCIN_Project/data/features'  # Directory to save the features
 
     # Initialize S3 client
