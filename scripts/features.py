@@ -50,10 +50,14 @@ def extract_features(model, img_tensor):
 
 # Function to download an image from S3
 def download_image_from_s3(bucket, key):
-    response = s3_client.get_object(Bucket=bucket, Key=key)  # Get the object from S3
-    img_data = response['Body'].read()  # Read the image data
-    img = Image.open(BytesIO(img_data))  # Open the image
-    return img
+    try:
+        response = s3_client.get_object(Bucket=bucket, Key=key)  # Get the object from S3
+        img_data = response['Body'].read()  # Read the image data
+        img = Image.open(BytesIO(img_data))  # Open the image
+        return img
+    except s3_client.exceptions.NoSuchKey:
+        print(f"Image with key {key} does not exist.")
+        return None
 
 # Function to classify skin tone based on the fitzpatrick scale
 def classify_skin_tone(fitzpatrick_scale):
@@ -68,6 +72,8 @@ def extract_features_from_images(df, bucket, model, feature_dir):
     for index, row in df.iterrows():
         img_key = f"images/{row['md5hash']}.jpg"  # S3 key for the image
         img = download_image_from_s3(bucket, img_key)  # Download the image
+        if img is None:
+            continue
         
         # Original image
         img_tensor = preprocess_image(img)
@@ -102,8 +108,8 @@ def extract_features_from_images(df, bucket, model, feature_dir):
 
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'  # S3 bucket name
-    data_file = '/content/drive/MyDrive/SCIN_Project/fitzpatrick17k.csv'  # Path to the dataset CSV file
-    feature_dir = '/content/drive/MyDrive/SCIN_Project/data/features'  # Directory to save the features
+    data_file = 'data/processed/fitzpatrick17k.csv'  # Path to the dataset CSV file
+    feature_dir = 'data/features'  # Directory to save the features
 
     # Initialize S3 client
     s3_client = boto3.client('s3')
@@ -112,7 +118,7 @@ if __name__ == "__main__":
     df = load_data(data_file)
 
     # Load pre-trained model
-    model = models.resnet50(pretrained=True)
+    model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
     model = torch.nn.Sequential(*(list(model.children())[:-1]))  # Remove the classification layer
     model.eval()  # Set the model to evaluation mode
 
@@ -128,30 +134,30 @@ if __name__ == "__main__":
 
     # Download the image
     img = download_image_from_s3(s3_bucket, img_key)
-    print(f"Downloaded image size: {img.size}")
+    if img:
+        print(f"Downloaded image size: {img.size}")
 
-    # Apply augmentations
-    augmented_images = [img, inverse_color(img), horizontal_flip(img), vertical_flip(img)] + [augment_image(img)]
-    
-    # Display the original and augmented images
-    fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
-    for i, aug_img in enumerate(augmented_images):
-        axes[i].imshow(aug_img)
-        if i == 0:
-            axes[i].set_title('Original Image')
-        else:
-            axes[i].set_title(f'Augmentation {i}')
-    plt.show()
+        # Apply augmentations
+        augmented_images = [img, inverse_color(img), horizontal_flip(img), vertical_flip(img)] + [augment_image(img)]
+        
+        # Display the original and augmented images
+        fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
+        for i, aug_img in enumerate(augmented_images):
+            axes[i].imshow(aug_img)
+            if i == 0:
+                axes[i].set_title('Original Image')
+            else:
+                axes[i].set_title(f'Augmentation {i}')
+        plt.show()
 
-    # Preprocess the image
-    img_tensor = preprocess_image(img)
-    print(f"Preprocessed image tensor shape: {img_tensor.shape}")
+        # Preprocess the image
+        img_tensor = preprocess_image(img)
+        print(f"Preprocessed image tensor shape: {img_tensor.shape}")
 
-    # Extract features
-    features = extract_features(model, img_tensor)
-    print(f"Extracted features shape: {features.shape}")
-    print(f"Extracted features type: {type(features)}")
-    print(f"Extracted features: {features[:10]}")  # Print first 10 features for inspection
+        # Extract features
+        features = extract_features(model, img_tensor)
+        print(f"Extracted features shape: {features.shape}")
+        print(f"Extracted features type: {type(features)}")
+        print(f"Extracted features: {features[:10]}")  # Print first 10 features for inspection
 
     print("Tests completed.")
-
