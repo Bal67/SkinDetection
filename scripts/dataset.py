@@ -21,7 +21,6 @@ def download_image(url):
         img = Image.open(BytesIO(response.content))
         return img
     except Exception as e:
-        print(f"Failed to download image from {url}: {e}")
         return None
 
 def upload_to_s3(img, bucket, key):
