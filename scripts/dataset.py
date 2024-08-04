@@ -87,11 +87,8 @@ def download_images_in_batches(df, bucket, batch_size=500):
         successful_downloads, failed_downloads = process_batch(batch_df, bucket)
         total_successful_downloads += successful_downloads
         total_failed_downloads += failed_downloads
-        print(f"Processed batch {i//batch_size + 1}/{(len(df) + batch_size - 1) // batch_size}")
-        print(f"Successful downloads: {successful_downloads}, Failed downloads: {failed_downloads}")
 
-    print(f"Successfully downloaded and uploaded {total_successful_downloads} images.")
-    print(f"Failed to download and upload {total_failed_downloads} images.")
+
 
 # Function to save the dataset to a file
 def save_data(df, filename, directory):
@@ -116,4 +113,4 @@ if __name__ == "__main__":
     df = load_data_from_github(github_url)
     df = preprocess_data(df)
     download_images_in_batches(df, s3_bucket, batch_size=500)
-    save_data(df, 'fitzpatrick17k.csv', '/content/drive/MyDrive/SCIN_Project/data')
+    save_data(df, 'fitzpatrick17k+_processed.csv', '/content/drive/MyDrive/SCIN_Project/data')
