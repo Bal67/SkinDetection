@@ -87,10 +87,8 @@ def process_and_augment_image(row, bucket):
         aug_key = f"augmented_images/{row['md5hash']}_aug_{i}.jpg"
         try:
             s3_client.head_object(Bucket=bucket, Key=aug_key)
-            print(f"Image {aug_key} already exists. Skipping.")
         except s3_client.exceptions.ClientError:
             save_image_to_s3(aug_img, bucket, aug_key)
-            print(f"Saved augmented image {aug_key}")
 
 # Function to process and augment all images
 def process_all_images(df, bucket):
