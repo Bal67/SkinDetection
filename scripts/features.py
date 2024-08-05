@@ -61,7 +61,7 @@ def process_row(row, bucket):
 
     # Save augmented images to S3 if they don't already exist
     for i, aug_img in enumerate(augmented_images):
-        aug_img_key = f"augmented/{row['md5hash']}_aug_{i}.jpg"
+        aug_img_key = f"augmented_images/{row['md5hash']}_aug_{i}.jpg"
         if not check_image_exists(bucket, aug_img_key):
             save_image_to_s3(bucket, aug_img_key, aug_img)
 
