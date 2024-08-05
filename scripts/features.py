@@ -103,8 +103,10 @@ def visualize_augmentations(bucket, img_key):
         fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
         for i, aug_img in enumerate(augmented_images):
             axes[i].imshow(aug_img)
-            axes[i].set_title('Original' if i == 0 else f'Augmentation {i}')
-            axes[i].axis('off')
+            if i == 0:
+                axes[i].set_title('Original Image')
+            else:
+                axes[i].set_title(f'Augmentation {i}')
         plt.show()
 
 if __name__ == "__main__":
