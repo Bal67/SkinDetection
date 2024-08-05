@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
+import os
 import boto3
 from PIL import Image, ImageOps
 from io import BytesIO
 import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
+from concurrent.futures import ThreadPoolExecutor
 
 # Initialize S3 client
 s3_client = boto3.client('s3')
@@ -47,31 +49,26 @@ def augment_image(img):
 def classify_skin_tone(fitzpatrick_scale):
     return 'dark' if fitzpatrick_scale > 3 else 'light'
 
-# Function to process and visualize a single image
-def process_and_visualize_single_image(row, bucket):
-    img_key = f"images/{row['md5hash']}.jpg"
+# Function to visualize original and augmented images
+def visualize_augmentations(bucket, img_key):
     img = download_image_from_s3(bucket, img_key)
-    if img is None:
-        return
+    if img:
+        augmented_images = [img, horizontal_flip(img), vertical_flip(img)]
+        augmented_images += [inverse_color(img), augment_image(img)]
 
-    augmented_images = [img, horizontal_flip(img), vertical_flip(img)]
+        fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
+        for i, aug_img in enumerate(augmented_images):
+            axes[i].imshow(aug_img)
+            axes[i].set_title('Original' if i == 0 else f'Augmentation {i}')
+            axes[i].axis('off')
+        plt.show()
 
-    skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
-    if skin_tone == 'dark':
-        augmented_images.append(inverse_color(img))
-        augmented_images.append(augment_image(img))
-
-    fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
-    for i, aug_img in enumerate(augmented_images):
-        axes[i].imshow(aug_img)
-        axes[i].set_title('Original' if i == 0 else f'Augmentation {i}')
-        axes[i].axis('off')
-    plt.show()
-
-# Function to process and augment all images (without visualization)
-def process_all_images(df, bucket):
-    for index, row in df.iterrows():
-        process_and_augment_image(row, bucket)
+# Function to save image to S3
+def save_image_to_s3(img, bucket, key):
+    buffer = BytesIO()
+    img.save(buffer, format="JPEG")
+    buffer.seek(0)
+    s3_client.put_object(Bucket=bucket, Key=key, Body=buffer)
 
 # Helper function to process and augment a single image
 def process_and_augment_image(row, bucket):
@@ -80,14 +77,25 @@ def process_and_augment_image(row, bucket):
     if img is None:
         return
 
-    augmented_images = [img, horizontal_flip(img), vertical_flip(img)]
-
     skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
-    if skin_tone == 'dark':
-        augmented_images.append(inverse_color(img))
-        augmented_images.append(augment_image(img))
+    augmented_images = [horizontal_flip(img), vertical_flip(img)]
 
-    # Placeholder for where you would save or further process augmented_images
+    if skin_tone == 'dark':
+        augmented_images += [inverse_color(img), augment_image(img)]
+
+    for i, aug_img in enumerate(augmented_images):
+        aug_key = f"augmented_images/{row['md5hash']}_aug_{i}.jpg"
+        try:
+            s3_client.head_object(Bucket=bucket, Key=aug_key)
+            print(f"Image {aug_key} already exists. Skipping.")
+        except s3_client.exceptions.ClientError:
+            save_image_to_s3(aug_img, bucket, aug_key)
+            print(f"Saved augmented image {aug_key}")
+
+# Function to process and augment all images
+def process_all_images(df, bucket):
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        executor.map(lambda row: process_and_augment_image(row, bucket), [row for _, row in df.iterrows()])
 
 # Function to count the number of images in the S3 bucket
 def count_images_in_bucket(bucket):
@@ -112,7 +120,7 @@ if __name__ == "__main__":
 
     # Test augmentations on a single image
     test_row = df.iloc[0]
-    process_and_visualize_single_image(test_row, s3_bucket)
+    visualize_augmentations(s3_bucket, f"images/{test_row['md5hash']}.jpg")
 
-    # Process and augment all images (without visualization)
+    # Process and augment all images
     process_all_images(df, s3_bucket)
