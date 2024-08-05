@@ -4,17 +4,15 @@ import os
 import boto3
 from PIL import Image, ImageOps
 from io import BytesIO
-import torch
-import torchvision.transforms as transforms
-from torchvision import models
 import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor
+import torchvision.transforms as transforms
 
 # Function to load the dataset from a CSV file
 def load_data(filepath):
     return pd.read_csv(filepath)
 
-# Function to preprocess a single image for feature extraction
+# Function to preprocess a single image
 def preprocess_image(img):
     preprocess = transforms.Compose([
         transforms.Resize(256),  # Resize the image to 256x256 pixels
@@ -43,12 +41,6 @@ def horizontal_flip(img):
 def vertical_flip(img):
     return img.transpose(Image.FLIP_TOP_BOTTOM)
 
-# Function to extract features from an image tensor using a pre-trained model
-def extract_features(model, img_tensor):
-    with torch.no_grad():  # Disable gradient calculation
-        features = model(img_tensor)  # Extract features
-    return features.numpy().flatten()  # Flatten the features and convert to a numpy array
-
 # Function to download an image from S3
 def download_image_from_s3(bucket, key):
     try:
@@ -69,24 +61,11 @@ def classify_skin_tone(fitzpatrick_scale):
         return 'dark'
 
 # Helper function to process a single row
-def process_row(row, bucket, model, feature_dir):
-    features = []
+def process_row(row, bucket):
     img_key = f"images/{row['md5hash']}.jpg"  # S3 key for the image
     img = download_image_from_s3(bucket, img_key)  # Download the image
     if img is None:
-        return features, row['md5hash']
-    
-    # Check if features already exist to avoid redundant processing
-    feature_file = os.path.join(feature_dir, f"{row['md5hash']}_features.npy")
-    if os.path.exists(feature_file):
-        return features, row['md5hash']
-    
-    # Original image
-    img_tensor = preprocess_image(img)
-    features.append(extract_features(model, img_tensor))
-    
-    # Save original image features
-    np.save(feature_file, features[-1])
+        return None
     
     # Augmentations based on skin tone
     skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
@@ -98,34 +77,27 @@ def process_row(row, bucket, model, feature_dir):
         augmentations = [inverse_color, horizontal_flip, vertical_flip, augment_image]
     
     augmented_images = [augmentations[np.random.randint(len(augmentations))](img) for _ in range(num_augmentations)]
-    for i, aug_img in enumerate(augmented_images):
-        augmented_tensor = preprocess_image(aug_img)
-        augmented_features = extract_features(model, augmented_tensor)
-        features.append(augmented_features)
-        
-        # Save augmented image features
-        aug_feature_file = os.path.join(feature_dir, f"{row['md5hash']}_aug_{i}_features.npy")
-        np.save(aug_feature_file, augmented_features)
-    
-    return features, None
+    return [img] + augmented_images
 
-# Function to extract features from images and save them to a numpy file
-def extract_features_from_images(df, bucket, model, feature_dir):
-    features_list = []  # List to store features
-    missing_images = 0  # Counter for missing images
+# Function to apply augmentations to images and visualize them
+def augment_and_visualize_images(df, bucket):
     with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = {executor.submit(process_row, row, bucket, model, feature_dir): index for index, row in df.iterrows()}
+        futures = {executor.submit(process_row, row, bucket): index for index, row in df.iterrows()}
         for future in futures:
-            result, missing_image = future.result()
-            if missing_image:
-                missing_images += 1
-            else:
-                features_list.extend(result)
-    
-    # Convert the list of features to a numpy array
-    features_array = np.array(features_list)
-    
-    return features_array
+            result = future.result()
+            if result:
+                visualize_images(result)
+
+# Function to visualize original and augmented images
+def visualize_images(images):
+    fig, axes = plt.subplots(1, len(images), figsize=(20, 5))
+    for i, img in enumerate(images):
+        axes[i].imshow(img)
+        if i == 0:
+            axes[i].set_title('Original Image')
+        else:
+            axes[i].set_title(f'Augmentation {i}')
+    plt.show()
 
 # Function to count the number of images in the S3 bucket
 def count_images_in_bucket(bucket):
@@ -141,7 +113,6 @@ def count_images_in_bucket(bucket):
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'  # S3 bucket name
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'  # Path to the processed dataset CSV file
-    feature_dir = '/content/drive/MyDrive/SCIN_Project/data/features'  # Directory to save the features
 
     # Initialize S3 client
     s3_client = boto3.client('s3')
@@ -149,47 +120,15 @@ if __name__ == "__main__":
     # Load data
     df = load_data(data_file)
 
-    # Load pre-trained model
-    model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-    model = torch.nn.Sequential(*(list(model.children())[:-1]))  # Remove the classification layer
-    model.eval()  # Set the model to evaluation mode
+    # Count images in the bucket
+    count_images_in_bucket(s3_bucket)
 
-    # Extract features
-    try:
-        extract_features_from_images(df, s3_bucket, model, feature_dir)
-    except Exception as e:
-        print(f"An error occurred during feature extraction: {e}")
-
-     # Test image key
+    # Test image key
     test_img_key = df.iloc[0]['md5hash']  # Use the first image in the dataframe for testing
     img_key = f"images/{test_img_key}.jpg"
 
-    # Download the image
-    img = download_image_from_s3(s3_bucket, img_key)
-    if img:
-        print(f"Downloaded image size: {img.size}")
+    # Visualize augmentations for the first image
+    visualize_images(s3_bucket, img_key)
 
-        # Apply augmentations
-        augmented_images = [img, inverse_color(img), horizontal_flip(img), vertical_flip(img)] + [augment_image(img)]
-        
-        # Display the original and augmented images
-        fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
-        for i, aug_img in enumerate(augmented_images):
-            axes[i].imshow(aug_img)
-            if i == 0:
-                axes[i].set_title('Original Image')
-            else:
-                axes[i].set_title(f'Augmentation {i}')
-        plt.show()
-
-        # Preprocess the image
-        img_tensor = preprocess_image(img)
-        print(f"Preprocessed image tensor shape: {img_tensor.shape}")
-
-        # Extract features
-        features = extract_features(model, img_tensor)
-        print(f"Extracted features shape: {features.shape}")
-        print(f"Extracted features type: {type(features)}")
-        print(f"Extracted features: {features[:10]}")  # Print first 10 features for inspection
-
-    print("Tests completed.")
+    # Apply augmentations to all images and visualize them
+    augment_and_visualize_images(df, s3_bucket)
