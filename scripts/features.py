@@ -57,10 +57,8 @@ def download_image_from_s3(bucket, key):
         img = Image.open(BytesIO(img_data))  # Open the image
         return img
     except s3_client.exceptions.NoSuchKey:
-        print(f"Image with key {key} does not exist.")
         return None
     except Exception as e:
-        print(f"An error occurred while downloading the image: {e}")
         return None
 
 # Function to classify skin tone based on the fitzpatrick scale
@@ -81,7 +79,6 @@ def process_row(row, bucket, model, feature_dir):
     # Check if features already exist to avoid redundant processing
     feature_file = os.path.join(feature_dir, f"{row['md5hash']}_features.npy")
     if os.path.exists(feature_file):
-        print(f"Features for image {img_key} already exist. Skipping.")
         return features, row['md5hash']
     
     # Original image
@@ -125,12 +122,21 @@ def extract_features_from_images(df, bucket, model, feature_dir):
             else:
                 features_list.extend(result)
     
-    print(f"Total missing images: {missing_images}")  # Log the number of missing images
-    
     # Convert the list of features to a numpy array
     features_array = np.array(features_list)
     
     return features_array
+
+# Function to count the number of images in the S3 bucket
+def count_images_in_bucket(bucket):
+    paginator = s3_client.get_paginator('list_objects_v2')
+    pages = paginator.paginate(Bucket=bucket, Prefix='images/')
+    image_count = 0
+    for page in pages:
+        if 'Contents' in page:
+            image_count += len(page['Contents'])
+    print(f"Total images in bucket '{bucket}': {image_count}")
+    return image_count
 
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'  # S3 bucket name
@@ -154,10 +160,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An error occurred during feature extraction: {e}")
 
-    # Test section
-    print("Running tests...")
-
-    # Test image key
+     # Test image key
     test_img_key = df.iloc[0]['md5hash']  # Use the first image in the dataframe for testing
     img_key = f"images/{test_img_key}.jpg"
 
