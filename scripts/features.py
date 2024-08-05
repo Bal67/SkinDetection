@@ -70,9 +70,16 @@ def augment_image(img):
     return augmentations(img)
 
 # Function to visualize original and augmented images
-def visualize_images(images):
-    fig, axes = plt.subplots(1, len(images), figsize=(20, 5))
-    for i, img in enumerate(images):
+def visualize_images(bucket, img_key):
+    img = download_image_from_s3(bucket, img_key)
+    if img:
+        print(f"Downloaded image size: {img.size}")
+
+        # Apply augmentations
+        augmented_images = [img, inverse_color(img), horizontal_flip(img), vertical_flip(img)] + [augment_image(img)]
+
+    fig, axes = plt.subplots(1, len(augment_image), figsize=(20, 5))
+    for i, img in enumerate(augment_image):
         axes[i].imshow(img)
         axes[i].set_title('Original Image' if i == 0 else f'Augmentation {i}')
         axes[i].axis('off')
@@ -103,8 +110,14 @@ def test_augmentations_on_single_image(df, bucket):
     visualize_images(augmented_images)
 
 if __name__ == "__main__":
+
     s3_bucket = '540skinappbucket'
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'
+
+    s3_bucket = '540skinappbucket'  # S3 bucket name
+    data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'  # Path to the processed dataset CSV file
+    img_key = 'images/31739032077cfd5d9234fe67b6852b4c.jpg'  # Example image key
+
 
     # Load data
     df = load_data(data_file)
@@ -115,5 +128,13 @@ if __name__ == "__main__":
     # Extract and visualize features from all images
     extract_and_visualize_features(df, s3_bucket)
 
+
     # Test augmentations on a single image
     test_augmentations_on_single_image(df, s3_bucket)
+
+    # Apply augmentations to all images and visualize them
+    augment_and_visualize_images(df, s3_bucket)
+
+    # Visualize augmentations
+    visualize_images(s3_bucket, img_key)
+
