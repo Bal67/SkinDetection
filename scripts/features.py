@@ -130,7 +130,7 @@ if __name__ == "__main__":
     img_key = f"images/{test_img_key}.jpg"
 
     # Visualize augmentations for the first image
-    visualize_augmentations(s3_bucket, img_key)
+    visualize_images(s3_bucket, img_key)
 
     # Apply augmentations to all images and visualize them
     augment_and_visualize_images(df, s3_bucket)
