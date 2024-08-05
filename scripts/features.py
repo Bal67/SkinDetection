@@ -90,16 +90,22 @@ def augment_and_visualize_images(df, bucket):
             if result:
                 visualize_images(result)
 
-# Function to visualize original and augmented images
-def visualize_images(images):
-    fig, axes = plt.subplots(1, len(images), figsize=(20, 5))
-    for i, img in enumerate(images):
-        axes[i].imshow(img)
-        if i == 0:
-            axes[i].set_title('Original Image')
-        else:
-            axes[i].set_title(f'Augmentation {i}')
-    plt.show()
+def visualize_images(bucket, img_key):
+    img = download_image_from_s3(bucket, img_key)
+    if img:
+
+        # Apply augmentations
+        augmented_images = [img, inverse_color(img), horizontal_flip(img), vertical_flip(img)] + [augment_image(img)]
+        
+        # Display the original and augmented images
+        fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
+        for i, aug_img in enumerate(augmented_images):
+            axes[i].imshow(aug_img)
+            if i == 0:
+                axes[i].set_title('Original Image')
+            else:
+                axes[i].set_title(f'Augmentation {i}')
+        plt.show()
 
 # Function to count the number of images in the S3 bucket
 def count_images_in_bucket(bucket):
