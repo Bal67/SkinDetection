@@ -7,12 +7,12 @@ import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor
 import torchvision.transforms as transforms
 
+# Initialize S3 client
+s3_client = boto3.client('s3')
+
 # Function to load the dataset from a CSV file
 def load_data(filepath):
     return pd.read_csv(filepath)
-
-# Initialize S3 client
-s3_client = boto3.client('s3')
 
 # Function to download an image from S3
 def download_image_from_s3(bucket, key):
@@ -39,15 +39,6 @@ def vertical_flip(img):
 def classify_skin_tone(fitzpatrick_scale):
     return 'dark' if fitzpatrick_scale > 3 else 'light'
 
-# Function to apply specific augmentations to an image
-def augment_image(img):
-    augmentations = transforms.Compose([
-        transforms.RandomHorizontalFlip(), 
-        transforms.RandomVerticalFlip(), 
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
-    ])
-    return augmentations(img)
-
 # Helper function to process a single row
 def process_row(row, bucket):
     augmented_images = []
@@ -69,24 +60,19 @@ def process_row(row, bucket):
 
     return augmented_images
 
-# Function to extract and visualize features from images
-def extract_and_visualize_features(df, bucket):
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(process_row, row, bucket) for index, row in df.iterrows()]
-        for future in futures:
-            result = future.result()
+# Function to apply specific augmentations to an image
+def augment_image(img):
+    augmentations = transforms.Compose([
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
+    ])
+    return augmentations(img)
 
 # Function to visualize original and augmented images
-def visualize_images(bucket, img_key):
-    img = download_image_from_s3(bucket, img_key)
-    if img:
-        print(f"Downloaded image size: {img.size}")
-
-        # Apply augmentations
-        augmented_images = [img, inverse_color(img), horizontal_flip(img), vertical_flip(img)] + [augment_image(img)]
-
-    fig, axes = plt.subplots(1, len(augment_image), figsize=(20, 5))
-    for i, img in enumerate(augment_image):
+def visualize_images(images):
+    fig, axes = plt.subplots(1, len(images), figsize=(20, 5))
+    for i, img in enumerate(images):
         axes[i].imshow(img)
         axes[i].set_title('Original Image' if i == 0 else f'Augmentation {i}')
         axes[i].axis('off')
@@ -103,6 +89,13 @@ def count_images_in_bucket(bucket):
     print(f"Total images in bucket '{bucket}': {image_count}")
     return image_count
 
+# Function to extract and visualize features from images
+def extract_and_visualize_features(df, bucket):
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(process_row, row, bucket) for index, row in df.iterrows()]
+        for future in futures:
+            result = future.result()
+
 # Test function to process and visualize a single image
 def test_augmentations_on_single_image(df, bucket):
     sample_row = df.iloc[0]
@@ -110,14 +103,8 @@ def test_augmentations_on_single_image(df, bucket):
     visualize_images(augmented_images)
 
 if __name__ == "__main__":
-
     s3_bucket = '540skinappbucket'
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'
-
-    s3_bucket = '540skinappbucket'  # S3 bucket name
-    data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'  # Path to the processed dataset CSV file
-    img_key = 'images/31739032077cfd5d9234fe67b6852b4c.jpg'  # Example image key
-
 
     # Load data
     df = load_data(data_file)
@@ -128,13 +115,5 @@ if __name__ == "__main__":
     # Extract and visualize features from all images
     extract_and_visualize_features(df, s3_bucket)
 
-
     # Test augmentations on a single image
     test_augmentations_on_single_image(df, s3_bucket)
-
-    # Apply augmentations to all images and visualize them
-    augment_and_visualize_images(df, s3_bucket)
-
-    # Visualize augmentations
-    visualize_images(s3_bucket, img_key)
-
