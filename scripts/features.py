@@ -40,7 +40,7 @@ def classify_skin_tone(fitzpatrick_scale):
 # Function to count the number of augmented images in the S3 bucket
 def count_augimages_in_bucket(bucket):
     paginator = s3_client.get_paginator('list_objects_v2')
-    pages = paginator.paginate(Bucket=bucket, Prefix='augmented/')
+    pages = paginator.paginate(Bucket=bucket, Prefix='augmented_images/')
     image_count = 0
     for page in pages:
         if 'Contents' in page:
