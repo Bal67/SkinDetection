@@ -1,12 +1,11 @@
 import pandas as pd
 import numpy as np
-import os
 import boto3
 from PIL import Image, ImageOps
 from io import BytesIO
+import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor
-import torchvision.transforms as transforms
 
 # Function to load the dataset from a CSV file
 def load_data(filepath):
@@ -49,8 +48,10 @@ def download_image_from_s3(bucket, key):
         img = Image.open(BytesIO(img_data))  # Open the image
         return img
     except s3_client.exceptions.NoSuchKey:
+        print(f"Image with key {key} does not exist.")
         return None
     except Exception as e:
+        print(f"An error occurred while downloading the image: {e}")
         return None
 
 # Function to classify skin tone based on the fitzpatrick scale
@@ -62,10 +63,11 @@ def classify_skin_tone(fitzpatrick_scale):
 
 # Helper function to process a single row
 def process_row(row, bucket):
+    augmented_images = []
     img_key = f"images/{row['md5hash']}.jpg"  # S3 key for the image
     img = download_image_from_s3(bucket, img_key)  # Download the image
     if img is None:
-        return None
+        return augmented_images
     
     # Augmentations based on skin tone
     skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
@@ -128,7 +130,7 @@ if __name__ == "__main__":
     img_key = f"images/{test_img_key}.jpg"
 
     # Visualize augmentations for the first image
-    visualize_images(s3_bucket, img_key)
+    visualize_augmentations(s3_bucket, img_key)
 
     # Apply augmentations to all images and visualize them
     augment_and_visualize_images(df, s3_bucket)
