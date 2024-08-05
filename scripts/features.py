@@ -90,22 +90,23 @@ def augment_and_visualize_images(df, bucket):
             if result:
                 visualize_images(result)
 
+# Function to visualize original and augmented images
 def visualize_images(bucket, img_key):
     img = download_image_from_s3(bucket, img_key)
     if img:
+        print(f"Downloaded image size: {img.size}")
 
         # Apply augmentations
         augmented_images = [img, inverse_color(img), horizontal_flip(img), vertical_flip(img)] + [augment_image(img)]
-        
-        # Display the original and augmented images
-        fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
-        for i, aug_img in enumerate(augmented_images):
-            axes[i].imshow(aug_img)
-            if i == 0:
-                axes[i].set_title('Original Image')
-            else:
-                axes[i].set_title(f'Augmentation {i}')
-        plt.show()
+
+    fig, axes = plt.subplots(1, len(augment_image), figsize=(20, 5))
+    for i, img in enumerate(augment_image):
+        axes[i].imshow(img)
+        if i == 0:
+            axes[i].set_title('Original Image')
+        else:
+            axes[i].set_title(f'Augmentation {i}')
+    plt.show()
 
 # Function to count the number of images in the S3 bucket
 def count_images_in_bucket(bucket):
@@ -121,7 +122,8 @@ def count_images_in_bucket(bucket):
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'  # S3 bucket name
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'  # Path to the processed dataset CSV file
-
+    img_key = 'images/31739032077cfd5d9234fe67b6852b4c.jpg'  # Example image key
+    
     # Initialize S3 client
     s3_client = boto3.client('s3')
 
@@ -131,12 +133,9 @@ if __name__ == "__main__":
     # Count images in the bucket
     count_images_in_bucket(s3_bucket)
 
-    # Test image key
-    test_img_key = df.iloc[0]['md5hash']  # Use the first image in the dataframe for testing
-    img_key = f"images/{test_img_key}.jpg"
-
-    # Visualize augmentations for the first image
-    visualize_images(s3_bucket, img_key)
-
     # Apply augmentations to all images and visualize them
     augment_and_visualize_images(df, s3_bucket)
+
+    # Visualize augmentations
+    visualize_augmentations(s3_bucket, img_key)
+
