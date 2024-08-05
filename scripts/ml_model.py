@@ -38,11 +38,7 @@ def download_image_from_s3(bucket, key):
         img_data = response['Body'].read()
         img = Image.open(BytesIO(img_data))
         return img
-    except s3_client.exceptions.NoSuchKey:
-        print(f"Image with key {key} does not exist.")
-        return None
-    except Exception as e:
-        print(f"An error occurred while downloading the image: {e}")
+    except Exception:
         return None
 
 # Function to extract features from an image tensor using a pre-trained model
