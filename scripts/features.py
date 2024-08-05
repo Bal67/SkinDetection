@@ -21,15 +21,6 @@ def preprocess_image(img):
     ])
     return preprocess(img).unsqueeze(0)  # Add a batch dimension and return
 
-# Function to apply specific augmentations to an image
-def augment_image(img):
-    augmentations = transforms.Compose([
-        transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
-        transforms.RandomVerticalFlip(),  # Randomly flip the image vertically
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Randomly change brightness, contrast, saturation, and hue
-    ])
-    return augmentations(img)
-
 # Specific augmentations: inverse color, horizontal flip, vertical flip
 def inverse_color(img):
     return ImageOps.invert(img.convert('RGB')).convert('RGB')
@@ -47,19 +38,12 @@ def download_image_from_s3(bucket, key):
         img_data = response['Body'].read()  # Read the image data
         img = Image.open(BytesIO(img_data))  # Open the image
         return img
-    except s3_client.exceptions.NoSuchKey:
-        print(f"Image with key {key} does not exist.")
-        return None
-    except Exception as e:
-        print(f"An error occurred while downloading the image: {e}")
+    except:
         return None
 
 # Function to classify skin tone based on the fitzpatrick scale
 def classify_skin_tone(fitzpatrick_scale):
-    if fitzpatrick_scale <= 3:
-        return 'light'
-    else:
-        return 'dark'
+    return 'dark' if fitzpatrick_scale > 3 else 'light'
 
 # Helper function to process a single row
 def process_row(row, bucket):
@@ -69,16 +53,14 @@ def process_row(row, bucket):
     if img is None:
         return augmented_images
     
-    # Augmentations based on skin tone
-    skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
-    if skin_tone == 'light':
-        num_augmentations = 1  # 1 additional image for light skin
-        augmentations = [inverse_color, augment_image]
-    else:
-        num_augmentations = 3  # 3 additional images for dark skin
-        augmentations = [inverse_color, horizontal_flip, vertical_flip, augment_image]
+    # Always add horizontal and vertical flip
+    augmentations = [horizontal_flip, vertical_flip]
     
-    augmented_images = [augmentations[np.random.randint(len(augmentations))](img) for _ in range(num_augmentations)]
+    # Additional augmentations for dark skin
+    if classify_skin_tone(row['fitzpatrick_scale']) == 'dark':
+        augmentations.extend([inverse_color, augment_image])
+    
+    augmented_images = [aug(img) for aug in augmentations]
     return [img] + augmented_images
 
 # Function to apply augmentations to images and visualize them
