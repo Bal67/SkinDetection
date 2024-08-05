@@ -124,5 +124,5 @@ if __name__ == "__main__":
     augment_and_save_images(df, s3_bucket)
 
     # Visualize augmentations for a sample image
-    test_img_key = 'images/ecacdf96f4a54f76834361a445194e0e.jpg'
+    test_img_key = 'images/000e8dd5ee75dd6668e978e7a4e6fe54.jpg'
     visualize_augmentations(s3_bucket, test_img_key)
