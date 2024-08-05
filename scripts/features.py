@@ -70,26 +70,6 @@ def save_image_to_s3(img, bucket, key):
     buffer.seek(0)
     s3_client.put_object(Bucket=bucket, Key=key, Body=buffer)
 
-# Helper function to process and augment a single image
-def process_and_augment_image(row, bucket):
-    img_key = f"images/{row['md5hash']}.jpg"
-    img = download_image_from_s3(bucket, img_key)
-    if img is None:
-        return
-
-    skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
-    augmented_images = [horizontal_flip(img), vertical_flip(img)]
-
-    if skin_tone == 'dark':
-        augmented_images += [inverse_color(img), augment_image(img)]
-
-    for i, aug_img in enumerate(augmented_images):
-        aug_key = f"augmented_images/{row['md5hash']}_aug_{i}.jpg"
-        try:
-            s3_client.head_object(Bucket=bucket, Key=aug_key)
-        except s3_client.exceptions.ClientError:
-            save_image_to_s3(aug_img, bucket, aug_key)
-
 # Function to process and augment all images
 def process_all_images(df, bucket):
     with ThreadPoolExecutor(max_workers=10) as executor:
@@ -106,6 +86,17 @@ def count_images_in_bucket(bucket):
     print(f"Total images in bucket '{bucket}': {image_count}")
     return image_count
 
+# Function to count the number of images in the S3 bucket
+def count_augimages_in_bucket(bucket):
+    paginator = s3_client.get_paginator('list_objects_v2')
+    pages = paginator.paginate(Bucket=bucket, Prefix='augmented_images/')
+    augimage_count = 0
+    for page in pages:
+        if 'Contents' in page:
+            image_count += len(page['Contents'])
+    print(f"Total augmented images in bucket '{bucket}': {augimage_count}")
+    return augimage_count
+
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'
@@ -115,10 +106,8 @@ if __name__ == "__main__":
 
     # Count images in the bucket
     count_images_in_bucket(s3_bucket)
+    count_augimages_in_bucket(s3_bucket)
 
-    # Test augmentations on a single image
-    test_row = df.iloc[0]
-    visualize_augmentations(s3_bucket, f"images/{test_row['md5hash']}.jpg")
-
-    # Process and augment all images
-    process_all_images(df, s3_bucket)
+    # Visualize augmentations
+    visualize_augmentations(s3_bucket, 'images/000000000000.jpg')
+    
