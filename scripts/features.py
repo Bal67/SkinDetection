@@ -123,7 +123,7 @@ if __name__ == "__main__":
     s3_bucket = '540skinappbucket'  # S3 bucket name
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'  # Path to the processed dataset CSV file
     img_key = 'images/31739032077cfd5d9234fe67b6852b4c.jpg'  # Example image key
-    
+
     # Initialize S3 client
     s3_client = boto3.client('s3')
 
@@ -137,5 +137,5 @@ if __name__ == "__main__":
     augment_and_visualize_images(df, s3_bucket)
 
     # Visualize augmentations
-    visualize_augmentations(s3_bucket, img_key)
+    visualize_images(s3_bucket, img_key)
 
