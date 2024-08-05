@@ -90,17 +90,18 @@ def count_images_in_bucket(bucket):
     return image_count
 
 # Function to extract and visualize features from images
-def extract_and_visualize_features(df, bucket):
+def extract_features_from_images(df, bucket):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = [executor.submit(process_row, row, bucket) for index, row in df.iterrows()]
         for future in futures:
-            result = future.result()
+            future.result()  # Ensure each future completes
 
 # Test function to process and visualize a single image
 def test_augmentations_on_single_image(df, bucket):
     sample_row = df.iloc[0]
     augmented_images = process_row(sample_row, bucket)
-    visualize_images(augmented_images)
+    if augmented_images:
+        visualize_images(augmented_images)
 
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'
@@ -112,8 +113,8 @@ if __name__ == "__main__":
     # Count images in the bucket
     count_images_in_bucket(s3_bucket)
 
-    # Extract and visualize features from all images
-    extract_and_visualize_features(df, s3_bucket)
-
     # Test augmentations on a single image
     test_augmentations_on_single_image(df, s3_bucket)
+
+    # Extract features from all images (without visualization)
+    extract_features_from_images(df, s3_bucket)
