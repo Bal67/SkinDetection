@@ -58,9 +58,10 @@ def process_row(row, bucket):
     
     # Additional augmentations for dark skin
     if classify_skin_tone(row['fitzpatrick_scale']) == 'dark':
-        augmentations.extend([inverse_color, augmented_images])
+        augmentations.extend([inverse_color])
+        augmented_images.append(augment_image(img))  # Add result of augment_image(img)
     
-    augmented_images = [aug(img) for aug in augmentations]
+    augmented_images.extend([aug(img) for aug in augmentations])
     return [img] + augmented_images
 
 # Function to apply augmentations to images and visualize them
