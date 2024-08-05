@@ -31,6 +31,15 @@ def horizontal_flip(img):
 def vertical_flip(img):
     return img.transpose(Image.FLIP_TOP_BOTTOM)
 
+# Function to apply additional augmentations
+def augment_image(img):
+    augmentations = transforms.Compose([
+        transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
+        transforms.RandomVerticalFlip(),  # Randomly flip the image vertically
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Randomly change brightness, contrast, saturation, and hue
+    ])
+    return augmentations(img)
+
 # Function to download an image from S3
 def download_image_from_s3(bucket, key):
     try:
@@ -58,8 +67,8 @@ def process_row(row, bucket):
     
     # Additional augmentations for dark skin
     if classify_skin_tone(row['fitzpatrick_scale']) == 'dark':
-        augmentations.extend([inverse_color])
-        augmented_images.append(augmented_images(img))  # Add result of augment_image(img)
+        augmentations.append(inverse_color)
+        augmented_images.append(augment_image(img))  # Add result of augment_image(img)
     
     augmented_images.extend([aug(img) for aug in augmentations])
     return [img] + augmented_images
