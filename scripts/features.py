@@ -4,7 +4,6 @@ import boto3
 from PIL import Image, ImageOps
 from io import BytesIO
 import matplotlib.pyplot as plt
-from concurrent.futures import ThreadPoolExecutor
 import torchvision.transforms as transforms
 
 # Initialize S3 client
@@ -35,31 +34,6 @@ def horizontal_flip(img):
 def vertical_flip(img):
     return img.transpose(Image.FLIP_TOP_BOTTOM)
 
-# Function to classify skin tone based on the fitzpatrick scale
-def classify_skin_tone(fitzpatrick_scale):
-    return 'dark' if fitzpatrick_scale > 3 else 'light'
-
-# Helper function to process a single row
-def process_row(row, bucket):
-    augmented_images = []
-    img_key = f"images/{row['md5hash']}.jpg"
-    img = download_image_from_s3(bucket, img_key)
-    if img is None:
-        return augmented_images
-    
-    augmented_images.append(img)  # Add the original image
-
-    # Augmentations based on skin tone
-    skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
-    augmented_images.append(horizontal_flip(img))
-    augmented_images.append(vertical_flip(img))
-
-    if skin_tone == 'dark':
-        augmented_images.append(inverse_color(img))
-        augmented_images.append(augment_image(img))
-
-    return augmented_images
-
 # Function to apply specific augmentations to an image
 def augment_image(img):
     augmentations = transforms.Compose([
@@ -69,14 +43,51 @@ def augment_image(img):
     ])
     return augmentations(img)
 
-# Function to visualize original and augmented images
-def visualize_images(images):
-    fig, axes = plt.subplots(1, len(images), figsize=(20, 5))
-    for i, img in enumerate(images):
-        axes[i].imshow(img)
-        axes[i].set_title('Original Image' if i == 0 else f'Augmentation {i}')
+# Function to classify skin tone based on the fitzpatrick scale
+def classify_skin_tone(fitzpatrick_scale):
+    return 'dark' if fitzpatrick_scale > 3 else 'light'
+
+# Function to process and visualize a single image
+def process_and_visualize_single_image(row, bucket):
+    img_key = f"images/{row['md5hash']}.jpg"
+    img = download_image_from_s3(bucket, img_key)
+    if img is None:
+        return
+
+    augmented_images = [img, horizontal_flip(img), vertical_flip(img)]
+
+    skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
+    if skin_tone == 'dark':
+        augmented_images.append(inverse_color(img))
+        augmented_images.append(augment_image(img))
+
+    fig, axes = plt.subplots(1, len(augmented_images), figsize=(20, 5))
+    for i, aug_img in enumerate(augmented_images):
+        axes[i].imshow(aug_img)
+        axes[i].set_title('Original' if i == 0 else f'Augmentation {i}')
         axes[i].axis('off')
     plt.show()
+
+# Function to process and augment all images (without visualization)
+def process_all_images(df, bucket):
+    for index, row in df.iterrows():
+        process_and_augment_image(row, bucket)
+
+# Helper function to process and augment a single image
+def process_and_augment_image(row, bucket):
+    img_key = f"images/{row['md5hash']}.jpg"
+    img = download_image_from_s3(bucket, img_key)
+    if img is None:
+        return
+
+    augmented_images = [img, horizontal_flip(img), vertical_flip(img)]
+
+    skin_tone = classify_skin_tone(row['fitzpatrick_scale'])
+    if skin_tone == 'dark':
+        augmented_images.append(inverse_color(img))
+        augmented_images.append(augment_image(img))
+
+    # Placeholder for where you would save or further process augmented_images
 
 # Function to count the number of images in the S3 bucket
 def count_images_in_bucket(bucket):
@@ -89,20 +100,6 @@ def count_images_in_bucket(bucket):
     print(f"Total images in bucket '{bucket}': {image_count}")
     return image_count
 
-# Function to extract and visualize features from images
-def extract_features_from_images(df, bucket):
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(process_row, row, bucket) for index, row in df.iterrows()]
-        for future in futures:
-            future.result()  # Ensure each future completes
-
-# Test function to process and visualize a single image
-def test_augmentations_on_single_image(df, bucket):
-    sample_row = df.iloc[0]
-    augmented_images = process_row(sample_row, bucket)
-    if augmented_images:
-        visualize_images(augmented_images)
-
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'
@@ -114,7 +111,8 @@ if __name__ == "__main__":
     count_images_in_bucket(s3_bucket)
 
     # Test augmentations on a single image
-    test_augmentations_on_single_image(df, s3_bucket)
+    test_row = df.iloc[0]
+    process_and_visualize_single_image(test_row, s3_bucket)
 
-    # Extract features from all images (without visualization)
-    extract_features_from_images(df, s3_bucket)
+    # Process and augment all images (without visualization)
+    process_all_images(df, s3_bucket)
