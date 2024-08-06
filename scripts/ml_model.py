@@ -72,14 +72,16 @@ class SimpleCNN(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
         )
+        self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
         self.classifier = nn.Sequential(
-            nn.Linear(128 * 56 * 56, 512),
+            nn.Linear(128 * 7 * 7, 512),
             nn.ReLU(inplace=True),
             nn.Linear(512, num_classes)
         )
 
     def forward(self, x):
         x = self.features(x)
+        x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
         return x
@@ -105,9 +107,9 @@ def main():
     val_dataset = SkinConditionDataset(val_df, s3_bucket)
     test_dataset = SkinConditionDataset(test_df, s3_bucket)
 
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn, num_workers=4)
-    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=4)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn, num_workers=2)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=2)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=2)
 
     # Define the model, loss function, and optimizer
     model = SimpleCNN(num_classes=num_classes).to('cuda')
