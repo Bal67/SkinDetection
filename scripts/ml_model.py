@@ -10,6 +10,8 @@ import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from torch.utils.data import DataLoader, Dataset
+from concurrent.futures import ThreadPoolExecutor
+from torchvision import models
 import joblib
 
 # Initialize S3 client
@@ -20,7 +22,7 @@ def download_image_from_s3(bucket, key):
     try:
         response = s3_client.get_object(Bucket=bucket, Key=key)
         img_data = response['Body'].read()
-        img = Image.open(BytesIO(img_data))
+        img = Image.open(BytesIO(img_data)).convert('RGB')
         return img
     except Exception as e:
         print(f"Error downloading image {key}: {e}")
@@ -59,34 +61,6 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x[0] is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
-# Function to define a simple neural network model
-class SimpleCNN(nn.Module):
-    def __init__(self, num_classes):
-        super(SimpleCNN, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
-            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        )
-        self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
-        self.classifier = nn.Sequential(
-            nn.Linear(128 * 7 * 7, 512),
-            nn.ReLU(inplace=True),
-            nn.Linear(512, num_classes)
-        )
-
-    def forward(self, x):
-        x = self.features(x)
-        x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        return x
-
 # Main function for training and evaluating the model
 def main():
     s3_bucket = '540skinappbucket'
@@ -94,92 +68,94 @@ def main():
 
     # Load data
     df = pd.read_csv(data_file)
-    num_classes = df['label'].nunique()
 
-    # Encode labels
-    df['label'] = pd.factorize(df['label'])[0]
+    # Drop rows with None images
+    df.dropna(subset=['augmented_image'], inplace=True)
+
+    # Define label mappings
+    label_mapping = {label: idx for idx, label in enumerate(df['label'].unique())}
+    df['label'] = df['label'].map(label_mapping)
 
     # Split the data into train, validation, and test sets
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df['label'])
-    train_df, val_df = train_test_split(train_df, test_size=0.25, random_state=42, stratify=train_df['label'])
+    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+    val_df, test_df = train_test_split(test_df, test_size=0.5, random_state=42)
 
-    # Create datasets and dataloaders
+    # Create datasets
     train_dataset = SkinConditionDataset(train_df, s3_bucket)
     val_dataset = SkinConditionDataset(val_df, s3_bucket)
     test_dataset = SkinConditionDataset(test_df, s3_bucket)
 
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn, num_workers=2)
-    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=2)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=2)
+    # Create dataloaders
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4, collate_fn=collate_fn)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=4, collate_fn=collate_fn)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=4, collate_fn=collate_fn)
 
-    # Define the model, loss function, and optimizer
-    model = SimpleCNN(num_classes=num_classes).to('cuda')
+    # Load pre-trained ResNet18 model
+    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
+    num_features = model.fc.in_features
+    model.fc = nn.Linear(num_features, len(label_mapping))
+    model = model.cuda()
+
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    # Train the model
-    num_epochs = 10
-    for epoch in range(num_epochs):
+    # Training loop
+    for epoch in range(10):  # Number of epochs
         model.train()
-        running_loss = 0.0
         for images, labels in train_loader:
-            images, labels = images.to('cuda'), labels.to('cuda')
+            images = images.cuda()
+            labels = labels.cuda()
             optimizer.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-            running_loss += loss.item() * images.size(0)
-        
-        epoch_loss = running_loss / len(train_loader.dataset)
-        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss:.4f}")
 
-        # Validate the model
+        # Validation loop
         model.eval()
-        val_running_loss = 0.0
-        val_corrects = 0
+        val_loss = 0
+        val_correct = 0
+        val_total = 0
         with torch.no_grad():
             for images, labels in val_loader:
-                images, labels = images.to('cuda'), labels.to('cuda')
+                images = images.cuda()
+                labels = labels.cuda()
                 outputs = model(images)
                 loss = criterion(outputs, labels)
-                val_running_loss += loss.item() * images.size(0)
-                _, preds = torch.max(outputs, 1)
-                val_corrects += torch.sum(preds == labels.data)
-        
-        val_loss = val_running_loss / len(val_loader.dataset)
-        val_accuracy = val_corrects.double() / len(val_loader.dataset)
-        print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+                val_loss += loss.item()
+                _, predicted = outputs.max(1)
+                val_total += labels.size(0)
+                val_correct += predicted.eq(labels).sum().item()
 
-    # Evaluate the model on the test set
+        print(f"Epoch {epoch + 1}, Validation Loss: {val_loss / len(val_loader)}, Validation Accuracy: {val_correct / val_total}")
+
+    # Test loop
     model.eval()
-    test_running_loss = 0.0
-    test_corrects = 0
-    y_true = []
-    y_pred = []
+    test_correct = 0
+    test_total = 0
+    all_labels = []
+    all_preds = []
     with torch.no_grad():
         for images, labels in test_loader:
-            images, labels = images.to('cuda'), labels.to('cuda')
+            images = images.cuda()
+            labels = labels.cuda()
             outputs = model(images)
-            loss = criterion(outputs, labels)
-            test_running_loss += loss.item() * images.size(0)
-            _, preds = torch.max(outputs, 1)
-            test_corrects += torch.sum(preds == labels.data)
-            y_true.extend(labels.cpu().numpy())
-            y_pred.extend(preds.cpu().numpy())
+            _, predicted = outputs.max(1)
+            test_total += labels.size(0)
+            test_correct += predicted.eq(labels).sum().item()
+            all_labels.extend(labels.cpu().numpy())
+            all_preds.extend(predicted.cpu().numpy())
 
-    test_loss = test_running_loss / len(test_loader.dataset)
-    test_accuracy = test_corrects.double() / len(test_loader.dataset)
-    test_precision = precision_score(y_true, y_pred, average='macro')
-    test_recall = recall_score(y_true, y_pred, average='macro')
+    test_accuracy = test_correct / test_total
+    test_precision = precision_score(all_labels, all_preds, average='macro')
+    test_recall = recall_score(all_labels, all_preds, average='macro')
 
-    print(f"Test Loss: {test_loss:.4f}")
     print(f"Test Accuracy: {test_accuracy:.4f}")
     print(f"Test Precision: {test_precision:.4f}")
     print(f"Test Recall: {test_recall:.4f}")
 
     # Save the trained model
-    model_path = 'simple_cnn_model.pth'
+    model_path = 'non_fine_tuned_model.pth'
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to {model_path}")
 
