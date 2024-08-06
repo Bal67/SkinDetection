@@ -86,9 +86,9 @@ def main():
     test_dataset = SkinConditionDataset(test_df, s3_bucket)
 
     # Create dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4, collate_fn=collate_fn)
-    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=4, collate_fn=collate_fn)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=4, collate_fn=collate_fn)
+    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=2, collate_fn=collate_fn)
+    val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False, num_workers=2, collate_fn=collate_fn)
+    test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False, num_workers=2, collate_fn=collate_fn)
 
     # Load pre-trained ResNet18 model
     model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
