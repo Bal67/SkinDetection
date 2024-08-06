@@ -133,6 +133,39 @@ if __name__ == "__main__":
     # Load data
     df = load_data(data_file)
 
+    # List of labels to keep
+    labels_to_keep = [
+        'allergic contact dermatitis',
+        'basal cell carcinoma',
+        'dariers disease',
+        'ehlers danlos syndrome',
+        'erythema multiforme',
+        'folliculitis',
+        'granuloma pyogenic',
+        'granuloma annulare',
+        'hailey hailey disease',
+        'kaposi sarcoma',
+        'keloid',
+        'lichen planus',
+        'lupus erythematosus',
+        'melanoma',
+        'mycosis fungoides',
+        'myiasis',
+        'nematode infection',
+        'neutrophilic dermatoses',
+        'photodermatoses',
+        'pityriasis rosea',
+        'psoriasis',
+        'scabies',
+        'scleroderma',
+        'squamous cell carcinoma',
+        'tungiasis',
+        'vitiligo'
+    ]
+
+    # Filter the dataframe to keep only the specified labels
+    df = df[df['label'].isin(labels_to_keep)]
+
     # Count images in the bucket
     count_augimages_in_bucket(s3_bucket)
 
