@@ -1,28 +1,18 @@
-import boto3
+import pandas as pd
 import numpy as np
-from PIL import Image
+import boto3
+from PIL import Image, ImageOps
 from io import BytesIO
 import torch
 import torchvision.transforms as transforms
 from torchvision import models
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 import joblib
-import os
 
 # Initialize S3 client
-s3_client = boto3.client('s3')
-
-# Function to preprocess a single image for feature extraction
-def preprocess_image(img):
-    preprocess = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-    return preprocess(img).unsqueeze(0)
+s3_client = boto3.client('s3',  region_name='us-east-1')
 
 # Function to download an image from S3
 def download_image_from_s3(bucket, key):
@@ -35,51 +25,69 @@ def download_image_from_s3(bucket, key):
         print(f"Error downloading image {key}: {e}")
         return None
 
+# Function to preprocess a single image for feature extraction
+def preprocess_image(img):
+    preprocess = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    return preprocess(img).unsqueeze(0)
+
+# Function to apply augmentations to an image
+def augment_image(img):
+    augmentations = [
+        img,
+        ImageOps.invert(img.convert('RGB')).convert('RGB'),
+        img.transpose(Image.FLIP_LEFT_RIGHT),
+        img.transpose(Image.FLIP_TOP_BOTTOM),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2)(img)
+    ]
+    return augmentations
+
 # Function to extract features from an image tensor using a pre-trained model
 def extract_features(model, img_tensor):
     with torch.no_grad():
         features = model(img_tensor)
     return features.numpy().flatten()
 
-# Function to list all images in the S3 bucket
-def list_images_in_bucket(bucket, prefix='augmented_images/'):
-    paginator = s3_client.get_paginator('list_objects_v2')
-    pages = paginator.paginate(Bucket=bucket, Prefix=prefix)
-    
-    image_keys = []
-    for page in pages:
-        if 'Contents' in page:
-            for obj in page['Contents']:
-                image_keys.append(obj['Key'])
-    return image_keys
-
-# Function to process and extract features from all images in the augmented_images folder
-def process_all_images(bucket, folder, model):
-    image_keys = list_images_in_bucket(bucket, folder)
+# Function to process images, apply augmentations, and extract features
+def process_images(df, bucket, model):
     X = []
     y = []
-    for img_key in image_keys:
+    for _, row in df.iterrows():
+        img_key = f"images/{row['md5hash']}.jpg"
         img = download_image_from_s3(bucket, img_key)
-        if img is not None:
-            img_tensor = preprocess_image(img)
+        if img is None:
+            continue
+        
+        # Apply augmentations
+        augmented_images = augment_image(img)
+        
+        for aug_img in augmented_images:
+            img_tensor = preprocess_image(aug_img)
             features = extract_features(model, img_tensor)
             X.append(features)
-            label = img_key.split('/')[1].split('_')[0]  # Assuming label is the prefix before the first underscore
-            y.append(label)
+            y.append(row['label'])
+    
     return np.array(X), np.array(y)
 
 # Main function for feature extraction and model training
 def main():
     s3_bucket = '540skinappbucket'
-    folder = 'augmented_images/'
+    data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'
+
+    # Load data
+    df = pd.read_csv(data_file)
 
     # Load pre-trained ResNet model
     resnet_model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-    resnet_model = torch.nn.Sequential(*(list(resnet_model.children())[:-1]))  # Remove the classification layer
+    resnet_model = torch.nn.Sequential(*(list(resnet_model.children())[:-1]))
     resnet_model.eval()
 
-    # Process all images and extract features
-    X, y = process_all_images(s3_bucket, folder, resnet_model)
+    # Process images and extract features
+    X, y = process_images(df, s3_bucket, resnet_model)
 
     # Split the data into train, validation, and test sets
     X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42)
