@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import boto3
-from PIL import Image, ImageOps
+from PIL import Image
 from io import BytesIO
 import torch
 import torchvision.transforms as transforms
@@ -36,6 +36,7 @@ def preprocess_image(img):
     ])
     return preprocess(img)
 
+# Dataset class to handle loading and transforming images
 class SkinConditionDataset(Dataset):
     def __init__(self, df, bucket):
         self.df = df
