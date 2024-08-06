@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor
 import torchvision.transforms as transforms
 
+# Initialize S3 client
+s3_client = boto3.client('s3',  region_name='us-east-1')
+
 # Function to load the dataset from a CSV file
 def load_data(filepath):
     return pd.read_csv(filepath)
