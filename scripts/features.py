@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 import torchvision.transforms as transforms
 
 # Initialize S3 client
-s3_client = boto3.client('s3',  region_name='us-east-1')
+s3_client = boto3.client('s3', region_name='us-east-1')
 
 # Function to load the dataset from a CSV file
 def load_data(filepath):
@@ -56,17 +56,20 @@ def process_row(row, bucket):
     img_key = f"images/{row['md5hash']}.jpg"
     img = download_image_from_s3(bucket, img_key)
     if img is None:
-        return
+        return []
 
     augmented_images = [img, horizontal_flip(img), vertical_flip(img)]
     if classify_skin_tone(row['fitzpatrick_scale']) == 'dark':
         augmented_images += [inverse_color(img), augment_image(img)]
 
+    aug_img_keys = []
     # Save augmented images to S3 if they don't already exist
     for i, aug_img in enumerate(augmented_images):
         aug_img_key = f"augmented_images/{row['md5hash']}_aug_{i}.jpg"
         if not check_image_exists(bucket, aug_img_key):
             save_image_to_s3(bucket, aug_img_key, aug_img)
+        aug_img_keys.append(aug_img_key)
+    return aug_img_keys
 
 # Function to check if an image already exists in S3
 def check_image_exists(bucket, key):
@@ -85,8 +88,18 @@ def save_image_to_s3(bucket, key, img):
 
 # Function to apply augmentations to images and save them to S3
 def augment_and_save_images(df, bucket):
+    augmented_data = []
     with ThreadPoolExecutor(max_workers=10) as executor:
-        executor.map(lambda row: process_row(row, bucket), [row for _, row in df.iterrows()])
+        results = list(executor.map(lambda row: process_row(row, bucket), [row for _, row in df.iterrows()]))
+    
+    for row, aug_img_keys in zip(df.iterrows(), results):
+        for aug_img_key in aug_img_keys:
+            augmented_row = row[1].copy()
+            augmented_row['augmented_image'] = aug_img_key
+            augmented_data.append(augmented_row)
+    
+    augmented_df = pd.DataFrame(augmented_data)
+    return augmented_df
 
 # Function to apply specific augmentations to an image
 def augment_image(img):
@@ -115,9 +128,7 @@ def visualize_augmentations(bucket, img_key):
 if __name__ == "__main__":
     s3_bucket = '540skinappbucket'
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'
-
-    # Initialize S3 client
-    s3_client = boto3.client('s3')
+    updated_data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed_augmented.csv'
 
     # Load data
     df = load_data(data_file)
@@ -125,8 +136,12 @@ if __name__ == "__main__":
     # Count images in the bucket
     count_augimages_in_bucket(s3_bucket)
 
-    # Apply augmentations to all images and save them to S3
-    augment_and_save_images(df, s3_bucket)
+    # Apply augmentations to all images, save them to S3, and update the CSV
+    augmented_df = augment_and_save_images(df, s3_bucket)
+
+    # Save the updated CSV to Google Drive
+    augmented_df.to_csv(updated_data_file, index=False)
+    print(f"Updated CSV file saved to {updated_data_file}")
 
     # Visualize augmentations for a sample image
     test_img_key = 'images/000e8dd5ee75dd6668e978e7a4e6fe54.jpg'
