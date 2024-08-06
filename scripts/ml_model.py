@@ -5,14 +5,15 @@ from PIL import Image, ImageOps
 from io import BytesIO
 import torch
 import torchvision.transforms as transforms
-from torchvision import models
-from sklearn.linear_model import LogisticRegression
+import torch.nn as nn
+import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score
+from torch.utils.data import DataLoader, Dataset
 import joblib
 
 # Initialize S3 client
-s3_client = boto3.client('s3',  region_name='us-east-1')
+s3_client = boto3.client('s3', region_name='us-east-1')
 
 # Function to download an image from S3
 def download_image_from_s3(bucket, key):
@@ -25,7 +26,7 @@ def download_image_from_s3(bucket, key):
         print(f"Error downloading image {key}: {e}")
         return None
 
-# Function to preprocess a single image for feature extraction
+# Function to preprocess a single image for model training
 def preprocess_image(img):
     preprocess = transforms.Compose([
         transforms.Resize(256),
@@ -33,93 +34,150 @@ def preprocess_image(img):
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
-    return preprocess(img).unsqueeze(0)
+    return preprocess(img)
 
-# Function to apply augmentations to an image
-def augment_image(img):
-    augmentations = [
-        img,
-        ImageOps.invert(img.convert('RGB')).convert('RGB'),
-        img.transpose(Image.FLIP_LEFT_RIGHT),
-        img.transpose(Image.FLIP_TOP_BOTTOM),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2)(img)
-    ]
-    return augmentations
+class SkinConditionDataset(Dataset):
+    def __init__(self, df, bucket):
+        self.df = df
+        self.bucket = bucket
 
-# Function to extract features from an image tensor using a pre-trained model
-def extract_features(model, img_tensor):
-    with torch.no_grad():
-        features = model(img_tensor)
-    return features.numpy().flatten()
+    def __len__(self):
+        return len(self.df)
 
-# Function to process images, apply augmentations, and extract features
-def process_images(df, bucket, model):
-    X = []
-    y = []
-    for _, row in df.iterrows():
-        img_key = f"images/{row['md5hash']}.jpg"
-        img = download_image_from_s3(bucket, img_key)
+    def __getitem__(self, idx):
+        row = self.df.iloc[idx]
+        img_key = row['augmented_image']
+        img = download_image_from_s3(self.bucket, img_key)
         if img is None:
-            continue
-        
-        # Apply augmentations
-        augmented_images = augment_image(img)
-        
-        for aug_img in augmented_images:
-            img_tensor = preprocess_image(aug_img)
-            features = extract_features(model, img_tensor)
-            X.append(features)
-            y.append(row['label'])
-    
-    return np.array(X), np.array(y)
+            return None, row['label']
+        img_tensor = preprocess_image(img)
+        label = row['label']
+        return img_tensor, label
 
-# Main function for feature extraction and model training
+def collate_fn(batch):
+    batch = list(filter(lambda x: x[0] is not None, batch))
+    return torch.utils.data.dataloader.default_collate(batch)
+
+# Function to define a simple neural network model
+class SimpleCNN(nn.Module):
+    def __init__(self, num_classes):
+        super(SimpleCNN, self).__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        )
+        self.classifier = nn.Sequential(
+            nn.Linear(128 * 56 * 56, 512),
+            nn.ReLU(inplace=True),
+            nn.Linear(512, num_classes)
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = x.view(x.size(0), -1)
+        x = self.classifier(x)
+        return x
+
+# Main function for training and evaluating the model
 def main():
     s3_bucket = '540skinappbucket'
-    data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed.csv'
+    data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed_augmented.csv'
 
     # Load data
     df = pd.read_csv(data_file)
+    num_classes = df['label'].nunique()
 
-    # Load pre-trained ResNet model
-    resnet_model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-    resnet_model = torch.nn.Sequential(*(list(resnet_model.children())[:-1]))
-    resnet_model.eval()
-
-    # Process images and extract features
-    X, y = process_images(df, s3_bucket, resnet_model)
+    # Encode labels
+    df['label'] = pd.factorize(df['label'])[0]
 
     # Split the data into train, validation, and test sets
-    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42)
-    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df['label'])
+    train_df, val_df = train_test_split(train_df, test_size=0.25, random_state=42, stratify=train_df['label'])
 
-    # Train a Logistic Regression model
-    clf = LogisticRegression(max_iter=1000)
-    clf.fit(X_train, y_train)
+    # Create datasets and dataloaders
+    train_dataset = SkinConditionDataset(train_df, s3_bucket)
+    val_dataset = SkinConditionDataset(val_df, s3_bucket)
+    test_dataset = SkinConditionDataset(test_df, s3_bucket)
 
-    # Evaluate the model on the validation set
-    y_val_pred = clf.predict(X_val)
-    val_accuracy = accuracy_score(y_val, y_val_pred)
-    val_precision = precision_score(y_val, y_val_pred, average='macro')
-    val_recall = recall_score(y_val, y_val_pred, average='macro')
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=4)
 
-    print(f"Validation Accuracy: {val_accuracy:.4f}")
-    print(f"Validation Precision: {val_precision:.4f}")
-    print(f"Validation Recall: {val_recall:.4f}")
+    # Define the model, loss function, and optimizer
+    model = SimpleCNN(num_classes=num_classes).to('cuda')
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+    # Train the model
+    num_epochs = 10
+    for epoch in range(num_epochs):
+        model.train()
+        running_loss = 0.0
+        for images, labels in train_loader:
+            images, labels = images.to('cuda'), labels.to('cuda')
+            optimizer.zero_grad()
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item() * images.size(0)
+        
+        epoch_loss = running_loss / len(train_loader.dataset)
+        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss:.4f}")
+
+        # Validate the model
+        model.eval()
+        val_running_loss = 0.0
+        val_corrects = 0
+        with torch.no_grad():
+            for images, labels in val_loader:
+                images, labels = images.to('cuda'), labels.to('cuda')
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                val_running_loss += loss.item() * images.size(0)
+                _, preds = torch.max(outputs, 1)
+                val_corrects += torch.sum(preds == labels.data)
+        
+        val_loss = val_running_loss / len(val_loader.dataset)
+        val_accuracy = val_corrects.double() / len(val_loader.dataset)
+        print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
 
     # Evaluate the model on the test set
-    y_test_pred = clf.predict(X_test)
-    test_accuracy = accuracy_score(y_test, y_test_pred)
-    test_precision = precision_score(y_test, y_test_pred, average='macro')
-    test_recall = recall_score(y_test, y_test_pred, average='macro')
+    model.eval()
+    test_running_loss = 0.0
+    test_corrects = 0
+    y_true = []
+    y_pred = []
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images, labels = images.to('cuda'), labels.to('cuda')
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            test_running_loss += loss.item() * images.size(0)
+            _, preds = torch.max(outputs, 1)
+            test_corrects += torch.sum(preds == labels.data)
+            y_true.extend(labels.cpu().numpy())
+            y_pred.extend(preds.cpu().numpy())
 
+    test_loss = test_running_loss / len(test_loader.dataset)
+    test_accuracy = test_corrects.double() / len(test_loader.dataset)
+    test_precision = precision_score(y_true, y_pred, average='macro')
+    test_recall = recall_score(y_true, y_pred, average='macro')
+
+    print(f"Test Loss: {test_loss:.4f}")
     print(f"Test Accuracy: {test_accuracy:.4f}")
     print(f"Test Precision: {test_precision:.4f}")
     print(f"Test Recall: {test_recall:.4f}")
 
     # Save the trained model
-    model_path = 'non_fine_tuned_model.pkl'
-    joblib.dump(clf, model_path)
+    model_path = 'simple_cnn_model.pth'
+    torch.save(model.state_dict(), model_path)
     print(f"Model saved to {model_path}")
 
 if __name__ == "__main__":
