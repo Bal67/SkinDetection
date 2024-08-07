@@ -4,7 +4,7 @@ from PIL import Image, ImageOps
 import numpy as np
 
 # Load the fine-tuned model
-model_path = '/content/drive/MyDrive/SCIN_Project/models/finetuned_mobilenetv2.h5'
+model_path = '/content/drive/MyDrive/SCIN_Project/models/finetuned_mobilenetv2'
 model = tf.keras.models.load_model(model_path)
 
 # Define the list of skin conditions
@@ -72,4 +72,3 @@ if uploaded_file is not None:
     st.write(f"Prediction: {condition} with confidence {confidence:.2f}")
 
 st.write("**Disclaimer:** This application can only guess the condition from the list provided and should not be used as a medical diagnosis.")
-
