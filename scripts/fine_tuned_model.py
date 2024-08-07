@@ -11,6 +11,10 @@ from sklearn.utils.class_weight import compute_class_weight
 from concurrent.futures import ThreadPoolExecutor
 import multiprocessing
 
+# Set up AWS credentials
+os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAUWSBZ5K5OCTEDKGS'
+os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
+os.environ['AWS_REGION'] = 'us-east-1'
 
 # Initialize S3 client
 s3_client = boto3.client('s3', region_name='us-east-1')
@@ -109,7 +113,7 @@ def main():
         X_train, y_train,
         epochs=10,  # Increase the number of epochs for better training
         validation_data=(X_val, y_val),
-        batch_size=128,  # Increase batch size for faster training
+        batch_size=64,  # Increase batch size for faster training
         class_weight=class_weights,
         callbacks=[early_stopping]
     )
