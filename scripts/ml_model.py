@@ -1,18 +1,14 @@
+import tensorflow as tf
 import pandas as pd
 import numpy as np
 import boto3
 from PIL import Image
 from io import BytesIO
-import torch
-import torchvision.transforms as transforms
-import torch.nn as nn
-import torch.optim as optim
+import os
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score
-from torch.utils.data import DataLoader, Dataset
+from sklearn.preprocessing import LabelEncoder
+from sklearn.utils.class_weight import compute_class_weight
 from concurrent.futures import ThreadPoolExecutor
-from torchvision import models
-import joblib
 
 # Initialize S3 client
 s3_client = boto3.client('s3', region_name='us-east-1')
@@ -28,44 +24,32 @@ def download_image_from_s3(bucket, key):
         print(f"Error downloading image {key}: {e}")
         return None
 
-# Function to preprocess a single image for model training
+# Function to preprocess a single image
 def preprocess_image(img):
-    preprocess = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-    return preprocess(img)
+    img = img.resize((128, 128))  # Smaller image size for faster processing
+    img_array = tf.keras.preprocessing.image.img_to_array(img)
+    img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
+    return img_array
 
-# Dataset class to handle loading and transforming images
-class SkinConditionDataset(Dataset):
-    def __init__(self, df, bucket):
-        self.df = df
-        self.bucket = bucket
-
-    def __len__(self):
-        return len(self.df)
-
-    def __getitem__(self, idx):
-        row = self.df.iloc[idx]
-        img_key = row['augmented_image']
-        img = download_image_from_s3(self.bucket, img_key)
-        if img is None:
-            return None, row['label']
-        img_tensor = preprocess_image(img)
-        label = row['label']
-        return img_tensor, label
-
-def collate_fn(batch):
-    batch = list(filter(lambda x: x[0] is not None, batch))
-    return torch.utils.data.dataloader.default_collate(batch)
+# Function to extract features and labels for a batch of data
+def extract_features_and_labels(df, bucket):
+    X = []
+    y = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        results = list(executor.map(lambda row: (row['augmented_image'], row['label'], download_image_from_s3(bucket, row['augmented_image'])), [row for _, row in df.iterrows()]))
+    for img_key, label, img in results:
+        if img is not None:
+            features = preprocess_image(img)
+            X.append(features)
+            y.append(label)
+    return np.array(X), np.array(y)
 
 # Main function for training and evaluating the model
 def main():
     s3_bucket = '540skinappbucket'
     data_file = '/content/drive/MyDrive/SCIN_Project/data/fitzpatrick17k_processed_augmented.csv'
 
+    print("Loading data...")
     # Load data
     df = pd.read_csv(data_file)
 
@@ -73,90 +57,66 @@ def main():
     df.dropna(subset=['augmented_image'], inplace=True)
 
     # Define label mappings
-    label_mapping = {label: idx for idx, label in enumerate(df['label'].unique())}
-    df['label'] = df['label'].map(label_mapping)
+    label_encoder = LabelEncoder()
+    df['label'] = label_encoder.fit_transform(df['label'])
 
+    # Perform minimum sampling
+    min_samples = df['label'].value_counts().min()
+    balanced_df = df.groupby('label').apply(lambda x: x.sample(n=min_samples)).reset_index(drop=True)
+
+    # Compute class weights
+    class_weights = compute_class_weight('balanced', classes=np.unique(balanced_df['label']), y=balanced_df['label'])
+    class_weights = {i: class_weights[i] for i in range(len(class_weights))}
+
+    print("Splitting data...")
     # Split the data into train, validation, and test sets
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+    train_df, test_df = train_test_split(balanced_df, test_size=0.2, random_state=42)
     val_df, test_df = train_test_split(test_df, test_size=0.5, random_state=42)
 
-    # Create datasets
-    train_dataset = SkinConditionDataset(train_df, s3_bucket)
-    val_dataset = SkinConditionDataset(val_df, s3_bucket)
-    test_dataset = SkinConditionDataset(test_df, s3_bucket)
+    print("Extracting features...")
+    # Extract features and labels
+    X_train, y_train = extract_features_and_labels(train_df, s3_bucket)
+    X_val, y_val = extract_features_and_labels(val_df, s3_bucket)
+    X_test, y_test = extract_features_and_labels(test_df, s3_bucket)
 
-    # Create dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=2, collate_fn=collate_fn)
-    val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False, num_workers=2, collate_fn=collate_fn)
-    test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False, num_workers=2, collate_fn=collate_fn)
+    print(f"Training data shape: {X_train.shape}")
+    print(f"Validation data shape: {X_val.shape}")
+    print(f"Test data shape: {X_test.shape}")
 
-    # Load pre-trained ResNet18 model
-    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
-    num_features = model.fc.in_features
-    model.fc = nn.Linear(num_features, len(label_mapping))
-    model = model.cuda()
+    print("Building the model...")
+    # Load the MobileNetV2 model
+    base_model = tf.keras.applications.MobileNetV2(weights='imagenet', include_top=False, input_shape=(128, 128, 3))
+    base_model.trainable = False
 
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    # Add custom layers on top
+    model = tf.keras.Sequential([
+        base_model,
+        tf.keras.layers.GlobalAveragePooling2D(),
+        tf.keras.layers.Dense(256, activation='relu'),
+        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dense(len(label_encoder.classes_), activation='softmax')
+    ])
 
-    # Training loop
-    for epoch in range(10):  # Number of epochs
-        model.train()
-        for images, labels in train_loader:
-            images = images.cuda()
-            labels = labels.cuda()
-            optimizer.zero_grad()
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-        # Validation loop
-        model.eval()
-        val_loss = 0
-        val_correct = 0
-        val_total = 0
-        with torch.no_grad():
-            for images, labels in val_loader:
-                images = images.cuda()
-                labels = labels.cuda()
-                outputs = model(images)
-                loss = criterion(outputs, labels)
-                val_loss += loss.item()
-                _, predicted = outputs.max(1)
-                val_total += labels.size(0)
-                val_correct += predicted.eq(labels).sum().item()
+    print("Training the model...")
+    # Train the model
+    history = model.fit(
+        X_train, y_train,
+        epochs=5,  # Reduce the number of epochs for faster training
+        validation_data=(X_val, y_val),
+        batch_size=64,  # Increase batch size for faster training
+        class_weight=class_weights
+    )
 
-        print(f"Epoch {epoch + 1}, Validation Loss: {val_loss / len(val_loader)}, Validation Accuracy: {val_correct / val_total}")
-
-    # Test loop
-    model.eval()
-    test_correct = 0
-    test_total = 0
-    all_labels = []
-    all_preds = []
-    with torch.no_grad():
-        for images, labels in test_loader:
-            images = images.cuda()
-            labels = labels.cuda()
-            outputs = model(images)
-            _, predicted = outputs.max(1)
-            test_total += labels.size(0)
-            test_correct += predicted.eq(labels).sum().item()
-            all_labels.extend(labels.cpu().numpy())
-            all_preds.extend(predicted.cpu().numpy())
-
-    test_accuracy = test_correct / test_total
-    test_precision = precision_score(all_labels, all_preds, average='macro')
-    test_recall = recall_score(all_labels, all_preds, average='macro')
-
+    print("Evaluating the model...")
+    # Evaluate the model on the test set
+    test_loss, test_accuracy = model.evaluate(X_test, y_test, batch_size=64)
     print(f"Test Accuracy: {test_accuracy:.4f}")
-    print(f"Test Precision: {test_precision:.4f}")
-    print(f"Test Recall: {test_recall:.4f}")
 
     # Save the trained model
-    model_path = 'non_fine_tuned_model.pth'
-    torch.save(model.state_dict(), model_path)
+    model_path = '/content/drive/MyDrive/SCIN_Project/models/non_fine_tuned_mobilenetv2.h5'
+    model.save(model_path)
     print(f"Model saved to {model_path}")
 
 if __name__ == "__main__":
