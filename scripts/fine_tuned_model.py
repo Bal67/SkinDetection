@@ -120,8 +120,8 @@ def main():
     print(f"Test Accuracy: {test_accuracy:.4f}")
 
     # Save the trained model
-    model_path = '/content/drive/MyDrive/SCIN_Project/models/finetuned_mobilenetv2.h5'
-    model.save(model_path)
+    model_path = '/content/drive/MyDrive/SCIN_Project/models/finetuned_mobilenetv2'
+    model.save(model_path, save_format='tf')
     print(f"Model saved to {model_path}")
 
 if __name__ == "__main__":
