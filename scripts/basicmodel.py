@@ -13,7 +13,6 @@ import joblib
 import os
 from concurrent.futures import ThreadPoolExecutor
 
-
 # Initialize S3 client
 s3_client = boto3.client('s3', region_name='us-east-1')
 
