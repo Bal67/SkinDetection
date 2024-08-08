@@ -10,6 +10,8 @@ import git
 repo_url = 'https://github.com/Bal67/SkinDetection'
 repo_dir = '/tmp/SkinDetection'
 
+
+
 if not os.path.exists(repo_dir):
     st.write(f"Cloning repository from {repo_url}...")
     git.Repo.clone_from(repo_url, repo_dir)
@@ -34,6 +36,9 @@ if os.path.exists(model_path):
         st.error(f"Error loading model: {e}")
 else:
     st.error(f"Model file not found at {model_path}")
+
+
+
 
 # Define the list of skin conditions
 conditions = [
