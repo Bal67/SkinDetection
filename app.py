@@ -18,7 +18,7 @@ else:
     st.write(f"Repository already cloned at {repo_dir}")
 
 # Load the fine-tuned model
-model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
+model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2')
 st.write(f"Model path: {model_path}")
 
 model = None
@@ -84,7 +84,7 @@ def predict_condition(image):
         confidence = np.max(predictions)
         return conditions[predicted_class], confidence
     else:
-        return None
+        return None, None
 
 # Streamlit app
 st.title("Skin Condition Predictor")
