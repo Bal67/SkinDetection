@@ -1,5 +1,7 @@
 # SkinDetection
 
+StreamLit Application: https://540skinconditionclassification.streamlit.app/
+
 Google Colab: https://colab.research.google.com/drive/1rjWW2SNcuJgZAL7w6VqX38Wivb70Zm0U?usp=sharing
 
 FitzPatrick 17k Dataset: https://github.com/mattgroh/fitzpatrick17k
