@@ -18,7 +18,7 @@ else:
     st.write(f"Repository already cloned at {repo_dir}")
 
 # Load the fine-tuned model
-model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2')
+model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
 st.write(f"Model path: {model_path}")
 
 model = None
