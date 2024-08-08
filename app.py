@@ -10,9 +10,12 @@ import git
 repo_url = 'https://github.com/Bal67/SkinDetection'
 repo_dir = '/tmp/SkinDetection'
 
+if not os.path.exists(repo_dir):
+    git.Repo.clone_from(repo_url, repo_dir)
+    
 # Load the fine-tuned model
 model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
-model = load_model(model_path, custom_objects=custom_objects)
+model = load_model(model_path)
 
 # Define the list of skin conditions
 conditions = [
