@@ -14,4 +14,5 @@ scikeras == 0.11.0
 streamlit 
 setuptools>=45.0
 ml-dtypes == 0.3.1
+Python == 3.11.0
 boto3
