@@ -58,7 +58,7 @@ conditions = [
 
 # Preprocess the image
 def preprocess_image(image):
-    img = ImageOps.fit(image, (128, 128), Image.ANTIALIAS)
+    img = ImageOps.fit(image, (128, 128), Image.LANCZOS)
     img_array = np.asarray(img)
     img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
     img_array = np.expand_dims(img_array, axis=0)
