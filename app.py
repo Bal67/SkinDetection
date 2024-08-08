@@ -14,7 +14,7 @@ if not os.path.exists(repo_dir):
     git.Repo.clone_from(repo_url, repo_dir)
 
 # Load the fine-tuned model
-model_path = os.path.join(repo_dir, 'models/finetuned_mobilenetv2')
+model_path = os.path.join(repo_dir, 'models/finetuned_mobilenetv2.h5')
 model = TFSMLayer(model_path, call_endpoint='serving_default')
 
 # Define the list of skin conditions
