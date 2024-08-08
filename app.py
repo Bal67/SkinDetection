@@ -16,13 +16,14 @@ if not os.path.exists(repo_dir):
 # Load the fine-tuned model
 model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
 
-# Initialize the model variable
 model = None
 
 # Check if the model file exists and load the model
 if os.path.exists(model_path):
     try:
-        model = load_model(model_path)
+        # If you have custom objects, define them here
+        custom_objects = {}  # Replace with actual custom objects if any
+        model = load_model(model_path, custom_objects=custom_objects)
     except Exception as e:
         st.error(f"Error loading model: {e}")
 else:
@@ -60,7 +61,7 @@ conditions = [
 
 # Preprocess the image
 def preprocess_image(image):
-    img = ImageOps.fit(image, (128, 128), Image.LANCZOS)  # Use Image.LANCZOS instead of Image.ANTIALIAS
+    img = ImageOps.fit(image, (128, 128), Image.LANCZOS)
     img_array = np.asarray(img)
     img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
     img_array = np.expand_dims(img_array, axis=0)
@@ -99,4 +100,5 @@ if uploaded_file is not None:
         st.write("Model not loaded properly. Unable to classify the image.")
 
 st.write("**Disclaimer:** This application can only guess the condition from the list provided and should not be used as a medical diagnosis.")
+
 
