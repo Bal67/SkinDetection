@@ -4,7 +4,9 @@ Google Colab: https://colab.research.google.com/drive/1rjWW2SNcuJgZAL7w6VqX38Wiv
 
 FitzPatrick 17k Dataset: https://github.com/mattgroh/fitzpatrick17k
 
-Youtube Link: 
+Youtube Link: https://youtu.be/sDVSLhDg57c
+
+AWS S3: https://aws.amazon.com/s3/
 
 This project aims to automatically identify various skin conditions from images, specifically focusing on darker skin tones. The models used are a fine-tuned pre-trained MobileNetV2 model, a non-fine-tuned pre-trained MobileNetV2 model, and an SVM basic model.
 
