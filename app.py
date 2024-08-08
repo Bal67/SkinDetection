@@ -11,7 +11,6 @@ repo_url = 'https://github.com/Bal67/SkinDetection'
 repo_dir = '/tmp/SkinDetection'
 
 
-
 if not os.path.exists(repo_dir):
     st.write(f"Cloning repository from {repo_url}...")
     git.Repo.clone_from(repo_url, repo_dir)
@@ -38,7 +37,15 @@ else:
     st.error(f"Model file not found at {model_path}")
 
 
+# Load the model
+model = load_model('models/finetuned_mobilenetv2.h5')
 
+# Print the model summary
+model.summary()
+
+# Check the input shape of the problematic layer
+for layer in model.layers:
+    print(f"Layer {layer.name} expects {layer.input_shape} inputs")
 
 # Define the list of skin conditions
 conditions = [
