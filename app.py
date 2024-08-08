@@ -12,7 +12,7 @@ repo_dir = '/tmp/SkinDetection'
 
 if not os.path.exists(repo_dir):
     git.Repo.clone_from(repo_url, repo_dir)
-    
+
 # Load the fine-tuned model
 model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
 model = load_model(model_path)
@@ -58,13 +58,10 @@ def preprocess_image(image):
 # Predict the skin condition
 def predict_condition(image):
     preprocessed_image = preprocess_image(image)
-    if model:
-        predictions = model.predict(preprocessed_image)
-        predicted_class = np.argmax(predictions, axis=1)[0]
-        confidence = np.max(predictions)
-        return conditions[predicted_class], confidence
-    else:
-        return None, None
+    predictions = model.predict(preprocessed_image)
+    predicted_class = np.argmax(predictions, axis=1)[0]
+    confidence = np.max(predictions)
+    return conditions[predicted_class], confidence
 
 # Streamlit app
 st.title("Skin Condition Predictor")
@@ -82,10 +79,7 @@ if uploaded_file is not None:
     
     # Predict the condition
     condition, confidence = predict_condition(image)
-    if condition and confidence:
-        st.write(f"Prediction: {condition} with confidence {confidence:.2f}")
-    else:
-        st.write("Model not loaded properly. Unable to classify the image.")
+    st.write(f"Prediction: {condition} with confidence {confidence:.2f}")
 
 st.write("**Disclaimer:** This application can only guess the condition from the list provided and should not be used as a medical diagnosis.")
 
