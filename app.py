@@ -1,6 +1,7 @@
 import streamlit as st
 import tensorflow as tf
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model, Model
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
 from PIL import Image, ImageOps
 import numpy as np
 import os
@@ -22,7 +23,17 @@ model = None
 # Check if the model file exists and load the model
 if os.path.exists(model_path):
     try:
-        model = load_model(model_path)
+        base_model = load_model(model_path)
+
+        # Modify the model architecture to fix the dense layer issue
+        input_layer = Input(shape=(128, 128, 3))
+        x = base_model(input_layer, training=False)
+        x = GlobalAveragePooling2D()(x)
+        x = Dense(256, activation='relu')(x)
+        x = tf.keras.layers.Dropout(0.5)(x)
+        output_layer = Dense(len(conditions), activation='softmax')(x)
+        
+        model = Model(inputs=input_layer, outputs=output_layer)
     except Exception as e:
         st.error(f"Error loading model: {e}")
 else:
@@ -99,3 +110,4 @@ if uploaded_file is not None:
         st.write("Model not loaded properly. Unable to classify the image.")
 
 st.write("**Disclaimer:** This application can only guess the condition from the list provided and should not be used as a medical diagnosis.")
+
