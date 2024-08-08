@@ -5,7 +5,8 @@ import numpy as np
 
 # Load the fine-tuned model
 model_path = '/content/drive/MyDrive/SCIN_Project/models/finetuned_mobilenetv2'
-model = tf.keras.models.load_model(model_path)
+model = TFSMLayer(model_path, call_endpoint='serving_default')
+#model = tf.keras.models.load_model(model_path)
 
 # Define the list of skin conditions
 conditions = [
