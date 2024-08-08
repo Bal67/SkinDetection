@@ -15,12 +15,7 @@ if not os.path.exists(repo_dir):
 
 # Load the fine-tuned model
 model_path = os.path.join(repo_dir, 'models/finetuned_mobilenetv2.h5')
-
-# Check if the model file exists
-if not os.path.exists(model_path):
-    st.error(f"Model file not found at {model_path}")
-else:
-    model = load_model(model_path)
+model = tf.keras.models.load_model(model_path)         
 
 # Define the list of skin conditions
 conditions = [
