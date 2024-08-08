@@ -10,7 +10,7 @@ keras==3.2.0
 xgboost==1.4.2
 lightgbm==3.2.1
 torch== 2.3.1
-scikeras == 0.11.0
+scikeras == 0.13.0
 streamlit 
 setuptools>=45.0
 ml-dtypes == 0.3.1
