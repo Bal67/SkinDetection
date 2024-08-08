@@ -27,7 +27,7 @@ setup.py: Script for setting up the environment
 
 app.py: The main Streamlit app
 
-scripts/: Contains the scripts for generating recommendations and processing data
+scripts/: Contains the scripts for generating predicting and processing data
 
 dataset.py: Dataset loading and preprocessing
 
