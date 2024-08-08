@@ -101,11 +101,11 @@ Fine-Tuned Model: Fine-tuned MobileNetV2 model.
 
   
 ## Results and Conclusions
-SVM Model Accuracy: ~2.3
+SVM Model Accuracy: ~22%
 
-Naive MobileNetV2 Model Accuracy: ~4.4
+Naive MobileNetV2 Model Accuracy: ~42%
 
-Fine-Tuned MobileNetV2 Model Accuracy: ~5.6
+Fine-Tuned MobileNetV2 Model Accuracy: ~56%
 
 The project demonstrates that both naive and fine-tuned NCF models can provide accurate prediction of skin conditions, with the fine-tuned model showing significant improvements in performance. The SVM model serves as a good baseline but is outperformed by the NN models in capturing complex image features.
 
