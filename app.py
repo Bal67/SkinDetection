@@ -10,12 +10,42 @@ import git
 repo_url = 'https://github.com/Bal67/SkinDetection'
 repo_dir = '/tmp/SkinDetection'
 
+
 if not os.path.exists(repo_dir):
+    st.write(f"Cloning repository from {repo_url}...")
     git.Repo.clone_from(repo_url, repo_dir)
+else:
+    st.write(f"Repository already cloned at {repo_dir}")
 
 # Load the fine-tuned model
 model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
-model = load_model(model_path)
+st.write(f"Model path: {model_path}")
+
+model = None
+
+# Check if the model file exists and load the model
+if os.path.exists(model_path):
+    try:
+        # If you have custom objects, define them here
+        custom_objects = {}  # Replace with actual custom objects if any
+        st.write("Loading model...")
+        model = load_model(model_path, custom_objects=custom_objects)
+        st.write("Model loaded successfully.")
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+else:
+    st.error(f"Model file not found at {model_path}")
+
+
+# Load the model
+model = load_model('models/finetuned_mobilenetv2.h5')
+
+# Print the model summary
+model.summary()
+
+# Check the input shape of the problematic layer
+for layer in model.layers:
+    print(f"Layer {layer.name} expects {layer.input_shape} inputs")
 
 # Define the list of skin conditions
 conditions = [
@@ -58,10 +88,13 @@ def preprocess_image(image):
 # Predict the skin condition
 def predict_condition(image):
     preprocessed_image = preprocess_image(image)
-    predictions = model.predict(preprocessed_image)
-    predicted_class = np.argmax(predictions, axis=1)[0]
-    confidence = np.max(predictions)
-    return conditions[predicted_class], confidence
+    if model:
+        predictions = model.predict(preprocessed_image)
+        predicted_class = np.argmax(predictions, axis=1)[0]
+        confidence = np.max(predictions)
+        return conditions[predicted_class], confidence
+    else:
+        return None, None
 
 # Streamlit app
 st.title("Skin Condition Predictor")
@@ -79,8 +112,9 @@ if uploaded_file is not None:
     
     # Predict the condition
     condition, confidence = predict_condition(image)
-    st.write(f"Prediction: {condition} with confidence {confidence:.2f}")
+    if condition and confidence:
+        st.write(f"Prediction: {condition} with confidence {confidence:.2f}")
+    else:
+        st.write("Model not loaded properly. Unable to classify the image.")
 
 st.write("**Disclaimer:** This application can only guess the condition from the list provided and should not be used as a medical diagnosis.")
-
-
