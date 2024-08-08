@@ -3,11 +3,19 @@ import tensorflow as tf
 from keras.layers import TFSMLayer
 from PIL import Image, ImageOps
 import numpy as np
+import os
+import git
+
+# Clone the GitHub repository
+repo_url = 'https://github.com/Bal67/SkinDetection'
+repo_dir = '/tmp/SkinDetection'
+
+if not os.path.exists(repo_dir):
+    git.Repo.clone_from(repo_url, repo_dir)
 
 # Load the fine-tuned model
-model_path = '/content/drive/MyDrive/SCIN_Project/models/finetuned_mobilenetv2'
+model_path = os.path.join(repo_dir, 'models/finetuned_mobilenetv2')
 model = TFSMLayer(model_path, call_endpoint='serving_default')
-#model = tf.keras.models.load_model(model_path)
 
 # Define the list of skin conditions
 conditions = [
