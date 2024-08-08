@@ -1,6 +1,7 @@
 import streamlit as st
 import tensorflow as tf
 from keras.layers import TFSMLayer
+from tensorflow.keras.models import load_model
 from PIL import Image, ImageOps
 import numpy as np
 import os
@@ -15,7 +16,15 @@ if not os.path.exists(repo_dir):
 
 # Load the fine-tuned model
 model_path = os.path.join(repo_dir, 'models/finetuned_mobilenetv2.h5')
-model = tf.keras.models.load_model(model_path)         
+
+# Check if the model file exists
+if not os.path.exists(model_path):
+    st.error(f"Model file not found at {model_path}")
+else:
+    try:
+        model = load_model(model_path)
+    except Exception as e:
+        st.error(f"Error loading model: {e}")        
 
 # Define the list of skin conditions
 conditions = [
