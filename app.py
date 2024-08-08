@@ -11,10 +11,14 @@ repo_url = 'https://github.com/Bal67/SkinDetection'
 repo_dir = '/tmp/SkinDetection'
 
 if not os.path.exists(repo_dir):
+    st.write(f"Cloning repository from {repo_url}...")
     git.Repo.clone_from(repo_url, repo_dir)
+else:
+    st.write(f"Repository already cloned at {repo_dir}")
 
 # Load the fine-tuned model
 model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
+st.write(f"Model path: {model_path}")
 
 model = None
 
@@ -23,7 +27,9 @@ if os.path.exists(model_path):
     try:
         # If you have custom objects, define them here
         custom_objects = {}  # Replace with actual custom objects if any
+        st.write("Loading model...")
         model = load_model(model_path, custom_objects=custom_objects)
+        st.write("Model loaded successfully.")
     except Exception as e:
         st.error(f"Error loading model: {e}")
 else:
