@@ -20,25 +20,6 @@ model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
 # Initialize the model variable
 model = None
 
-# Check if the model file exists and load the model
-if os.path.exists(model_path):
-    try:
-        base_model = load_model(model_path)
-
-        # Modify the model architecture to fix the dense layer issue
-        input_layer = Input(shape=(128, 128, 3))
-        x = base_model(input_layer, training=False)
-        x = GlobalAveragePooling2D()(x)
-        x = Dense(256, activation='relu')(x)
-        x = tf.keras.layers.Dropout(0.5)(x)
-        output_layer = Dense(len(conditions), activation='softmax')(x)
-        
-        model = Model(inputs=input_layer, outputs=output_layer)
-    except Exception as e:
-        st.error(f"Error loading model: {e}")
-else:
-    st.error(f"Model file not found at {model_path}")
-
 # Define the list of skin conditions
 conditions = [
     'allergic contact dermatitis',
@@ -68,6 +49,34 @@ conditions = [
     'tungiasis',
     'vitiligo'
 ]
+
+# Check if the model file exists and load the model
+if os.path.exists(model_path):
+    try:
+        base_model = load_model(model_path, compile=False)
+
+        # Define the new input layer
+        input_layer = Input(shape=(128, 128, 3))
+        
+        # Pass the input through the base model
+        x = base_model(input_layer, training=False)
+        
+        # Add new layers on top
+        x = GlobalAveragePooling2D()(x)
+        x = Dense(256, activation='relu')(x)
+        x = tf.keras.layers.Dropout(0.5)(x)
+        output_layer = Dense(len(conditions), activation='softmax')(x)
+        
+        # Create the new model
+        model = Model(inputs=input_layer, outputs=output_layer)
+        
+        # Compile the model
+        model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+else:
+    st.error(f"Model file not found at {model_path}")
 
 # Preprocess the image
 def preprocess_image(image):
