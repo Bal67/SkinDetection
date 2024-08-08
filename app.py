@@ -1,6 +1,5 @@
 import streamlit as st
 import tensorflow as tf
-from keras.layers import TFSMLayer
 from tensorflow.keras.models import load_model
 from PIL import Image, ImageOps
 import numpy as np
@@ -17,14 +16,17 @@ if not os.path.exists(repo_dir):
 # Load the fine-tuned model
 model_path = os.path.join(repo_dir, 'models', 'finetuned_mobilenetv2.h5')
 
-# Check if the model file exists
-if not os.path.exists(model_path):
-    st.error(f"Model file not found at {model_path}")
-else:
+# Initialize the model variable
+model = None
+
+# Check if the model file exists and load the model
+if os.path.exists(model_path):
     try:
         model = load_model(model_path)
     except Exception as e:
-        st.error(f"Error loading model: {e}")        
+        st.error(f"Error loading model: {e}")
+else:
+    st.error(f"Model file not found at {model_path}")
 
 # Define the list of skin conditions
 conditions = [
@@ -58,7 +60,7 @@ conditions = [
 
 # Preprocess the image
 def preprocess_image(image):
-    img = ImageOps.fit(image, (128, 128), Image.LANCZOS)
+    img = ImageOps.fit(image, (128, 128), Image.LANCZOS)  # Use Image.LANCZOS instead of Image.ANTIALIAS
     img_array = np.asarray(img)
     img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
     img_array = np.expand_dims(img_array, axis=0)
@@ -67,10 +69,13 @@ def preprocess_image(image):
 # Predict the skin condition
 def predict_condition(image):
     preprocessed_image = preprocess_image(image)
-    predictions = model.predict(preprocessed_image)
-    predicted_class = np.argmax(predictions, axis=1)[0]
-    confidence = np.max(predictions)
-    return conditions[predicted_class], confidence
+    if model:
+        predictions = model.predict(preprocessed_image)
+        predicted_class = np.argmax(predictions, axis=1)[0]
+        confidence = np.max(predictions)
+        return conditions[predicted_class], confidence
+    else:
+        return None, None
 
 # Streamlit app
 st.title("Skin Condition Predictor")
@@ -88,6 +93,10 @@ if uploaded_file is not None:
     
     # Predict the condition
     condition, confidence = predict_condition(image)
-    st.write(f"Prediction: {condition} with confidence {confidence:.2f}")
+    if condition and confidence:
+        st.write(f"Prediction: {condition} with confidence {confidence:.2f}")
+    else:
+        st.write("Model not loaded properly. Unable to classify the image.")
 
 st.write("**Disclaimer:** This application can only guess the condition from the list provided and should not be used as a medical diagnosis.")
+
