@@ -1,3 +1,12 @@
+# Original diagnostic-app prototype from this project's earlier course-project
+# phase. Retained for reference only -- superseded by audit_app.py, which is
+# the actively maintained product (a fairness-audit tool, not a diagnostic
+# tool). Not maintained: in particular, this app builds a fresh MobileNetV2
+# with ImageNet weights but never loads the trained .h5 weights from models/,
+# so its predictions are meaningless. That bug is intentionally left as-is
+# rather than fixed, since this app is deprecated. See the top-level README
+# for details.
+
 import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.models import Model

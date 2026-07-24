@@ -1,27 +1,31 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="skin_condition_predictor",
-    version="0.1",
-    description="A Streamlit application to predict skin conditions using a fine-tuned MobileNetV2 model.",
+    name="dermatology-fairness-auditor",
+    version="0.2",
+    description=(
+        "A Streamlit tool that audits dermatology AI model predictions for "
+        "accuracy disparities across Fitzpatrick skin-tone groups. Not a "
+        "diagnostic tool; evaluates predictions the user already generated "
+        "elsewhere."
+    ),
     author="Your Name",
     author_email="your.email@example.com",
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
         "streamlit",
-        "tensorflow",
         "pandas",
         "numpy",
+        "scipy",
+        "requests",
+        # Retained for the legacy/scripts model-training and demo-generation
+        # code (see README "Background"); not needed by the audit engine itself.
+        "tensorflow",
         "boto3",
         "Pillow",
-        "scikit-learn"
+        "scikit-learn",
     ],
-    entry_points={
-        'console_scripts': [
-            'skin_condition_predictor = skin_condition_predictor.app:main'
-        ]
-    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
