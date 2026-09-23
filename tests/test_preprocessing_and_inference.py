@@ -34,7 +34,16 @@ def test_pad_preserves_aspect_ratio():
 
 def test_normalize_matches_mobilenet_v2():
     x = np.array([0, 127.5, 255], dtype=np.float32)
-    np.testing.assert_allclose(normalize(x), [-1, 0, 1])
+    np.testing.assert_allclose(normalize(x, "mobilenet_v2"), [-1, 0, 1])
+
+
+def test_normalize_raw_passthrough_and_unknown_mode():
+    x = np.array([0, 255], dtype=np.uint8)
+    out = normalize(x, "raw_0_255")  # EfficientNetV2/ConvNeXt normalize inside the network
+    assert out.dtype == np.float32
+    np.testing.assert_allclose(out, [0, 255])
+    with pytest.raises(ValueError):
+        normalize(x, "caffe")
 
 
 @pytest.mark.parametrize("mode", ["RGBA", "L", "P", "CMYK"])

@@ -1,0 +1,27 @@
+,allergic contact dermatitis,basal cell carcinoma,dariers disease,ehlers danlos syndrome,erythema multiforme,folliculitis,granuloma annulare,granuloma pyogenic,hailey hailey disease,kaposi sarcoma,keloid,lichen planus,lupus erythematosus,melanoma,mycosis fungoides,myiasis,nematode infection,neutrophilic dermatoses,photodermatoses,pityriasis rosea,psoriasis,scabies,scleroderma,squamous cell carcinoma,tungiasis,vitiligo
+allergic contact dermatitis,1,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,2,0,0,0,0,0,0
+basal cell carcinoma,0,23,1,0,0,1,0,0,0,0,0,1,2,1,1,0,0,2,0,1,0,0,0,5,1,0
+dariers disease,0,0,2,0,0,0,1,0,0,0,0,1,4,0,0,0,0,0,0,0,2,1,0,0,0,0
+ehlers danlos syndrome,0,0,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+erythema multiforme,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0
+folliculitis,0,0,0,0,0,8,0,0,1,1,1,0,1,1,0,0,0,1,1,0,0,0,0,0,0,0
+granuloma annulare,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1,2,0,0,0,0,0,0,1
+granuloma pyogenic,0,0,0,0,0,0,0,2,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+hailey hailey disease,0,0,0,0,0,0,0,0,11,0,0,1,0,0,0,0,0,1,0,1,0,1,0,0,0,0
+kaposi sarcoma,0,1,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+keloid,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,1,0,0,0,0,0,0,0
+lichen planus,0,3,0,0,0,1,1,0,0,1,0,20,2,1,0,1,0,0,2,1,0,1,1,0,0,0
+lupus erythematosus,0,0,1,0,0,0,0,0,0,0,0,0,10,0,0,0,0,1,0,1,1,2,0,0,0,0
+melanoma,0,3,0,0,0,0,0,0,0,0,0,0,1,5,0,0,1,0,0,0,0,0,0,3,0,0
+mycosis fungoides,0,0,0,0,0,0,1,0,0,1,0,0,0,1,7,0,0,0,0,1,1,0,0,1,0,0
+myiasis,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,0,0,3,0
+nematode infection,1,0,0,0,0,1,0,1,0,1,3,0,0,0,1,0,7,0,1,1,0,0,0,0,1,1
+neutrophilic dermatoses,0,0,1,0,0,0,2,0,0,1,0,0,0,0,0,0,0,6,1,0,0,0,0,2,0,0
+photodermatoses,0,0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,4,1,0,0,0,0,0,0
+pityriasis rosea,0,0,0,0,1,1,0,0,2,0,0,0,1,0,0,0,0,0,2,7,0,0,0,0,0,0
+psoriasis,1,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,2,0,1,7,2,0,0,0,1
+scabies,0,1,0,0,1,1,0,1,0,1,0,1,3,0,3,0,2,0,0,0,0,6,0,1,0,0
+scleroderma,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,2,0,0,0
+squamous cell carcinoma,0,6,0,0,0,0,0,0,1,0,2,2,3,0,0,1,0,0,0,0,2,1,0,12,1,1
+tungiasis,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,14,0
+vitiligo,1,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1

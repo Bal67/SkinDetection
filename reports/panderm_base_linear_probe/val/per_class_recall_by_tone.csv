@@ -1,0 +1,27 @@
+class,n_lighter_I-III,recall_lighter_I-III,n_darker_IV-VI,recall_darker_IV-VI
+allergic contact dermatitis,3,0.6666666666666666,4,1.0
+basal cell carcinoma,25,0.8,14,0.7142857142857143
+dariers disease,3,0.3333333333333333,7,0.7142857142857143
+ehlers danlos syndrome,3,1.0,3,1.0
+erythema multiforme,4,1.0,2,0.0
+folliculitis,7,1.0,5,0.8
+granuloma annulare,3,0.6666666666666666,4,0.75
+granuloma pyogenic,4,1.0,0,
+hailey hailey disease,8,0.75,6,0.6666666666666666
+kaposi sarcoma,5,0.4,2,1.0
+keloid,1,1.0,3,1.0
+lichen planus,10,1.0,22,0.9090909090909091
+lupus erythematosus,4,0.5,12,0.75
+melanoma,5,0.8,7,1.0
+mycosis fungoides,7,0.8571428571428571,3,0.6666666666666666
+myiasis,1,0.0,3,0.6666666666666666
+nematode infection,13,0.6923076923076923,6,0.8333333333333334
+neutrophilic dermatoses,5,0.6,8,0.625
+photodermatoses,3,1.0,5,0.6
+pityriasis rosea,6,0.8333333333333334,8,0.75
+psoriasis,4,1.0,11,0.8181818181818182
+scabies,11,0.7272727272727273,10,0.8
+scleroderma,0,,5,0.8
+squamous cell carcinoma,23,0.7391304347826086,7,1.0
+tungiasis,12,0.9166666666666666,3,0.6666666666666666
+vitiligo,5,0.4,2,0.5

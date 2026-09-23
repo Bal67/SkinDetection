@@ -8,13 +8,13 @@ import pytest
 keras = pytest.importorskip("keras")
 
 from skin_detection import config  # noqa: E402
-from skin_detection.model import (ModelLoadError, build_model, get_backbone, load_trained_model,  # noqa: E402
-                                  save_metadata, unfreeze_top_of_backbone)
+from skin_detection.model import (BACKBONES, ModelLoadError, build_model, get_backbone,  # noqa: E402
+                                  load_trained_model, save_metadata, unfreeze_top_of_backbone)
 
 
 @pytest.fixture(scope="module")
 def tiny_model():
-    return build_model(num_classes=3, image_size=32, weights=None)
+    return build_model(num_classes=3, image_size=32, backbone_name="mobilenetv2", weights=None)
 
 
 def test_saved_model_roundtrip_and_validation(tiny_model, tmp_path):
@@ -32,6 +32,10 @@ def test_saved_model_roundtrip_and_validation(tiny_model, tmp_path):
     with pytest.raises(ModelLoadError, match="input shape"):
         load_trained_model(model_path, meta_path)
 
+    save_metadata(meta_path, ["a", "b", "c"], 32, "pad", normalization="imagenet_caffe")  # unknown
+    with pytest.raises(ModelLoadError, match="normalization"):
+        load_trained_model(model_path, meta_path)
+
 
 def test_missing_files_raise(tmp_path):
     with pytest.raises(ModelLoadError):
@@ -41,13 +45,18 @@ def test_missing_files_raise(tmp_path):
         load_trained_model(tmp_path / "nope.keras", tmp_path / "bad.json")
 
 
-def test_unfreeze_keeps_batchnorm_frozen(tiny_model):
-    backbone = get_backbone(tiny_model)
+@pytest.mark.parametrize("backbone_name", sorted(BACKBONES))
+def test_unfreeze_keeps_batchnorm_frozen(backbone_name):
+    model = build_model(num_classes=3, image_size=32, backbone_name=backbone_name, weights=None)
+    assert model.output_shape == (None, 3)
+    backbone = get_backbone(model)
     assert not backbone.trainable
-    n = unfreeze_top_of_backbone(tiny_model, "block_13_expand")
+    fine_tune_from = BACKBONES[backbone_name]["fine_tune_from"]
+    n = unfreeze_top_of_backbone(model, fine_tune_from)
     assert n > 0
     names = [layer.name for layer in backbone.layers]
-    start = names.index("block_13_expand")
+    start = names.index(fine_tune_from)
+    assert start > len(names) // 2  # only the top part of the network is unfrozen
     for i, layer in enumerate(backbone.layers):
         if isinstance(layer, keras.layers.BatchNormalization):
             assert not layer.trainable
@@ -66,8 +75,12 @@ def test_legacy_model_loads_with_matching_class_names():
     assert np.isclose(probs.sum(), 1.0, atol=1e-4)
 
 
-def test_trained_model_if_present():
-    if not config.MODEL_PATH.exists():
-        pytest.skip("retrained model not present")
-    model, meta = load_trained_model(config.MODEL_PATH, config.MODEL_META_PATH)
+@pytest.mark.parametrize("backbone_name", sorted(BACKBONES))
+def test_trained_model_if_present(backbone_name):
+    model_path, meta_path = config.model_paths(backbone_name)
+    if not model_path.exists():
+        pytest.skip(f"{backbone_name} model not trained")
+    model, meta = load_trained_model(model_path, meta_path)
     assert model.output_shape[-1] == len(meta["class_names"])
+    assert meta["backbone"] == backbone_name
+    assert meta["normalization"] == BACKBONES[backbone_name]["normalization"]

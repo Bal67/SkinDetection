@@ -37,9 +37,16 @@ def is_uncertain(probs: Sequence[float]) -> bool:
 
 
 def predict_probs(model, meta: dict, images) -> np.ndarray:
-    """images: iterable of RGB PIL images -> (n, num_classes) probabilities."""
-    batch = np.stack([preprocess(img, meta["image_size"], meta["resize_mode"]) for img in images])
-    probs = np.asarray(model.predict(batch, verbose=0))
+    """images: iterable of RGB PIL images -> (n, num_classes) probabilities.
+    Preprocessing comes from the model's metadata, i.e. exactly what it was trained with."""
+    batch = np.stack([preprocess(img, meta["image_size"], meta["resize_mode"], meta["normalization"])
+                      for img in images])
+    if meta.get("backbone") == "panderm_base":  # PyTorch model
+        from . import panderm
+
+        probs = panderm.predict_probs(model, batch, next(model.parameters()).device)
+    else:
+        probs = np.asarray(model.predict(batch, verbose=0))
     if probs.shape[1] != len(meta["class_names"]):
         raise ValueError("Model output size does not match class_names")
     return probs

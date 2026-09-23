@@ -1,7 +1,7 @@
 """Model construction, two-stage fine-tuning helpers, and validated save/load.
 
-A trained model is always paired with a metadata JSON (models/class_names.json) that stores the
-exact class order and preprocessing settings used in training. Loading validates that:
+A trained model is always paired with a metadata JSON (models/skin_<backbone>_class_names.json)
+that stores the exact class order, backbone and preprocessing settings used in training. Loading validates that:
   * the metadata exists and is well-formed,
   * the model's output dimension equals len(class_names),
   * the model's input size equals the metadata image_size.
@@ -14,9 +14,24 @@ from typing import Optional
 
 import numpy as np
 
-from .preprocessing import RESIZE_MODES
+from .config import DEFAULT_BACKBONE
+from .preprocessing import NORMALIZATIONS, RESIZE_MODES
 
-BACKBONE_NAME = "mobilenetv2"
+# Supported ImageNet backbones (all CNNs from keras.applications; no extra dependencies).
+#   constructor: keras.applications attribute
+#   normalization: what the backbone expects as input (see preprocessing.NORMALIZATIONS)
+#   fine_tune_from: first layer unfrozen in stage B (roughly the last quarter to third of the network)
+BACKBONES = {
+    # 2018. Baseline kept for comparability with the original project.
+    "mobilenetv2": {"constructor": "MobileNetV2", "normalization": "mobilenet_v2",
+                    "fine_tune_from": "block_13_expand"},
+    # 2021. Default: newer, more accurate than MobileNetV2 and still cheap enough to train on a CPU.
+    "efficientnetv2b0": {"constructor": "EfficientNetV2B0", "normalization": "raw_0_255",
+                         "fine_tune_from": "block6a_expand_conv"},
+    # 2022. The newest CNN family in keras.applications; ~6x the compute of EfficientNetV2-B0 (GPU advised).
+    "convnext_tiny": {"constructor": "ConvNeXtTiny", "normalization": "raw_0_255",
+                      "fine_tune_from": "convnext_tiny_downsampling_block_2"},
+}
 
 
 class ModelLoadError(RuntimeError):
@@ -26,13 +41,13 @@ class ModelLoadError(RuntimeError):
 # --------------------------------------------------------------------------- metadata
 
 
-def save_metadata(path, class_names, image_size, resize_mode, **extra):
+def save_metadata(path, class_names, image_size, resize_mode, normalization="mobilenet_v2", **extra):
     meta = {
         "class_names": list(class_names),
         "num_classes": len(class_names),
         "image_size": int(image_size),
         "resize_mode": resize_mode,
-        "normalization": "mobilenet_v2",  # x / 127.5 - 1
+        "normalization": normalization,
         **extra,
     }
     Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -59,6 +74,8 @@ def load_metadata(path) -> dict:
         raise ModelLoadError(f"{path}: resize_mode must be one of {RESIZE_MODES}")
     if not isinstance(meta.get("image_size"), int):
         raise ModelLoadError(f"{path}: image_size must be an integer")
+    if meta.get("normalization") not in NORMALIZATIONS:
+        raise ModelLoadError(f"{path}: normalization must be one of {NORMALIZATIONS}")
     return meta
 
 
@@ -78,9 +95,10 @@ def validate_model_against_metadata(model, meta: dict) -> None:
 # --------------------------------------------------------------------------- architecture
 
 
-def build_model(num_classes: int, image_size: int, dense_units: int = 256, dropout: float = 0.5,
-                l2: float = 1e-4, weights: Optional[str] = "imagenet"):
-    """MobileNetV2 (ImageNet) -> GAP -> Dense(relu) -> Dropout -> Dense(softmax).
+def build_model(num_classes: int, image_size: int, backbone_name: str = DEFAULT_BACKBONE,
+                dense_units: int = 256, dropout: float = 0.5, l2: float = 1e-4,
+                weights: Optional[str] = "imagenet"):
+    """ImageNet backbone -> GAP -> Dense(relu) -> Dropout -> Dense(softmax).
 
     The backbone starts frozen (stage A). It is always called with training=False so its
     BatchNormalization layers stay in inference mode even after layers are unfrozen in stage B;
@@ -88,10 +106,11 @@ def build_model(num_classes: int, image_size: int, dense_units: int = 256, dropo
     """
     import keras
 
+    if backbone_name not in BACKBONES:
+        raise ValueError(f"Unknown backbone {backbone_name!r}; choose from {sorted(BACKBONES)}")
+    constructor = getattr(keras.applications, BACKBONES[backbone_name]["constructor"])
     inputs = keras.Input(shape=(image_size, image_size, 3), name="image")
-    backbone = keras.applications.MobileNetV2(
-        weights=weights, include_top=False, input_shape=(image_size, image_size, 3)
-    )
+    backbone = constructor(weights=weights, include_top=False, input_shape=(image_size, image_size, 3))
     backbone.trainable = False
     x = backbone(inputs, training=False)
     x = keras.layers.GlobalAveragePooling2D(name="gap")(x)
@@ -99,20 +118,23 @@ def build_model(num_classes: int, image_size: int, dense_units: int = 256, dropo
                            kernel_regularizer=keras.regularizers.l2(l2), name="head_dense")(x)
     x = keras.layers.Dropout(dropout, name="head_dropout")(x)
     outputs = keras.layers.Dense(num_classes, activation="softmax", name="predictions")(x)
-    return keras.Model(inputs, outputs, name="skin_mobilenetv2")
+    return keras.Model(inputs, outputs, name=f"skin_{backbone_name}")
 
 
 def get_backbone(model):
+    """The nested pretrained network (the only sub-model inside our classifier)."""
+    import keras
+
     for layer in model.layers:
-        if layer.name.startswith("mobilenetv2"):
+        if isinstance(layer, keras.Model):
             return layer
-    raise ValueError("No MobileNetV2 backbone found in model")
+    raise ValueError("No backbone sub-model found in model")
 
 
-def unfreeze_top_of_backbone(model, fine_tune_from: str = "block_13_expand") -> int:
-    """Stage B: unfreeze backbone layers from `fine_tune_from` onward (default: the last
-    four inverted-residual blocks + final 1x1 conv, ~30% of layers), keeping every
-    BatchNormalization layer frozen. Returns the number of trainable backbone layers."""
+def unfreeze_top_of_backbone(model, fine_tune_from: str) -> int:
+    """Stage B: unfreeze backbone layers from `fine_tune_from` onward (see BACKBONES for the
+    per-backbone default), keeping every BatchNormalization layer frozen. Returns the number of
+    trainable backbone layers that have weights."""
     import keras
 
     backbone = get_backbone(model)

@@ -18,9 +18,20 @@ IMAGES_DIR = _path("SKIN_IMAGES_DIR", DATA_DIR / "images")
 SPLITS_CSV = _path("SKIN_SPLITS_CSV", DATA_DIR / "splits.csv")
 
 MODELS_DIR = _path("SKIN_MODELS_DIR", PROJECT_ROOT / "models")
-MODEL_PATH = _path("SKIN_MODEL_PATH", MODELS_DIR / "skin_mobilenetv2.keras")
-# class_names.json holds the exact label order *and* preprocessing settings the model was trained with.
-MODEL_META_PATH = _path("SKIN_MODEL_META_PATH", MODELS_DIR / "class_names.json")
+
+# Backbone used by default for training, evaluation and the app. See skin_detection/model.py BACKBONES.
+DEFAULT_BACKBONE = "efficientnetv2b0"
+BACKBONE = os.environ.get("SKIN_BACKBONE", DEFAULT_BACKBONE)
+
+
+def model_paths(backbone: str):
+    """(model file, metadata file) for a backbone. The metadata JSON holds the exact class order and
+    the preprocessing settings (image size, resize mode, normalization) the model was trained with."""
+    return MODELS_DIR / f"skin_{backbone}.keras", MODELS_DIR / f"skin_{backbone}_class_names.json"
+
+
+MODEL_PATH = _path("SKIN_MODEL_PATH", model_paths(BACKBONE)[0])
+MODEL_META_PATH = _path("SKIN_MODEL_META_PATH", model_paths(BACKBONE)[1])
 
 # The original 2024 model. Kept for comparison only; see README "Legacy model".
 LEGACY_MODEL_PATH = MODELS_DIR / "finetuned_mobilenetv2.h5"
@@ -34,7 +45,7 @@ S3_BUCKET = os.environ.get("SKIN_S3_BUCKET")  # e.g. the original project's "540
 S3_PREFIX = os.environ.get("SKIN_S3_PREFIX", "images/")
 
 SEED = int(os.environ.get("SKIN_SEED", 42))
-IMAGE_SIZE = 224  # MobileNetV2's native ImageNet resolution (legacy model used 128)
+IMAGE_SIZE = 224  # native ImageNet resolution of all supported backbones (legacy model used 128)
 
 # The 26 conditions used by the original project, kept for comparability with earlier results.
 DEFAULT_LABELS = [

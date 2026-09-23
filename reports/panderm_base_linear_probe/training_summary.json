@@ -1,0 +1,101 @@
+{
+  "mode": "linear_probe",
+  "backbone": "panderm_base",
+  "best_val_balanced_accuracy": 0.7839358050062978,
+  "trained_at": "2026-09-23T16:13:00+00:00",
+  "splits_file": "splits.csv",
+  "seed": 42,
+  "tone_balance": true,
+  "device": "mps:0",
+  "torch": "2.14.0",
+  "torchvision": "0.29.0",
+  "args": {
+    "backbone": "panderm_base",
+    "mode": "linear_probe",
+    "splits": "/Users/britt/Documents/House of Leslie/SkinDetection/data/splits.csv",
+    "images_dir": "/Users/britt/Documents/House of Leslie/SkinDetection/data/images",
+    "reports_dir": "/Users/britt/Documents/House of Leslie/SkinDetection/reports",
+    "device": "auto",
+    "no_amp": "False",
+    "seed": "42",
+    "no_tone_balance": "False",
+    "feature_batch_size": "32",
+    "probe_cost_multipliers": "0.01,0.1,1,10,100,1000",
+    "probe_max_iter": "1000",
+    "trainable_blocks": "2",
+    "batch_size": "8",
+    "grad_accum": "8",
+    "head_lr": "0.001",
+    "backbone_lr": "2e-05",
+    "layer_decay": "0.65",
+    "weight_decay": "0.05",
+    "drop_path": "0.2",
+    "label_smoothing": "0.1",
+    "epochs": "15",
+    "warmup_epochs": "1.0",
+    "patience": "4",
+    "grad_checkpointing": "False",
+    "num_workers": "0",
+    "max_train_samples": "None",
+    "max_val_samples": "None",
+    "output_suffix": ""
+  },
+  "pooling": "cls",
+  "trainable_blocks": 0,
+  "selection": "probe cost C chosen by validation balanced accuracy (ties: macro F1)",
+  "cost_grid": [
+    {
+      "cost_multiplier": 0.01,
+      "C": 1.9968000000000001,
+      "val_balanced_accuracy": 0.5296582317420612,
+      "val_macro_f1": 0.47390515272074407,
+      "val_accuracy": 0.5085227272727273
+    },
+    {
+      "cost_multiplier": 0.1,
+      "C": 19.968000000000004,
+      "val_balanced_accuracy": 0.7575213406899522,
+      "val_macro_f1": 0.7416404481249235,
+      "val_accuracy": 0.7414772727272727
+    },
+    {
+      "cost_multiplier": 1.0,
+      "C": 199.68,
+      "val_balanced_accuracy": 0.7691756978335628,
+      "val_macro_f1": 0.7742236994147187,
+      "val_accuracy": 0.7869318181818182
+    },
+    {
+      "cost_multiplier": 10.0,
+      "C": 1996.8000000000002,
+      "val_balanced_accuracy": 0.7740271576482578,
+      "val_macro_f1": 0.7827804885285039,
+      "val_accuracy": 0.7869318181818182
+    },
+    {
+      "cost_multiplier": 100.0,
+      "C": 19968.0,
+      "val_balanced_accuracy": 0.7839358050062978,
+      "val_macro_f1": 0.7932320675437157,
+      "val_accuracy": 0.7926136363636364
+    },
+    {
+      "cost_multiplier": 1000.0,
+      "C": 199680.0,
+      "val_balanced_accuracy": 0.7773538452993383,
+      "val_macro_f1": 0.7884871666739693,
+      "val_accuracy": 0.7897727272727273
+    }
+  ],
+  "best": {
+    "cost_multiplier": 100.0,
+    "C": 19968.0,
+    "val_balanced_accuracy": 0.7839358050062978,
+    "val_macro_f1": 0.7932320675437157,
+    "val_accuracy": 0.7926136363636364
+  },
+  "official_cost": 199.68,
+  "note": "Full-batch L-BFGS on frozen features (official protocol); there are no epochs, so early stopping does not apply. Validation selects C.",
+  "n_train": 1642,
+  "n_val": 352
+}

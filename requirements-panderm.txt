@@ -1,0 +1,19 @@
+# PanDerm_Base (PyTorch). Install in its OWN environment, separate from the TensorFlow
+# baselines (requirements-train.txt), to avoid TensorFlow/PyTorch dependency conflicts.
+#
+# Official PanDerm environment: Python 3.10, torch 2.4.1, torchvision 0.19.1, CUDA 11.8, timm 0.9.16.
+# Tested here: Python 3.11, torch 2.14.0, torchvision 0.29.0, timm 0.9.16 on Apple M2 (MPS backend).
+# NOT yet tested on CUDA. For a CUDA GPU install torch from the matching index first, e.g.
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+# then:  pip install -r requirements-panderm.txt
+torch>=2.4
+torchvision>=0.19
+timm==0.9.16        # pinned by the official repo; its modeling_finetune.py imports timm.models.layers
+numpy>=1.26
+pillow>=10.0
+pandas>=2.1
+scikit-learn>=1.3
+matplotlib>=3.7
+requests>=2.31
+pytest>=8
+gdown>=5.0          # downloads the official checkpoint from Google Drive

@@ -1213,7 +1213,32 @@
       -0.1568208451092576,
       0.053182946163920795
     ],
-    "note": "Gap = lighter minus darker (positive = worse on darker skin). If the 95% CI includes 0 the data cannot distinguish the groups; that is NOT evidence of fairness."
+    "note": "Gap = lighter minus darker (positive = worse on darker skin). If the 95% CI includes 0 the data cannot distinguish the groups; that is NOT evidence of fairness.",
+    "shared_class_macro_recall": {
+      "n_shared_classes": 16,
+      "min_images_per_group": 3,
+      "lighter": 0.4822172619047619,
+      "darker": 0.5758209483752963,
+      "gap": -0.09360368647053441,
+      "classes": [
+        "basal cell carcinoma",
+        "dariers disease",
+        "folliculitis",
+        "granuloma annulare",
+        "hailey hailey disease",
+        "lichen planus",
+        "lupus erythematosus",
+        "melanoma",
+        "mycosis fungoides",
+        "nematode infection",
+        "neutrophilic dermatoses",
+        "photodermatoses",
+        "pityriasis rosea",
+        "psoriasis",
+        "scabies",
+        "squamous cell carcinoma"
+      ]
+    }
   },
   "per_class_recall_by_tone_group": [
     {
@@ -1373,7 +1398,7 @@
     {
       "class": "scleroderma",
       "n_lighter_I-III": 0,
-      "recall_lighter_I-III": NaN,
+      "recall_lighter_I-III": null,
       "n_darker_IV-VI": 6,
       "recall_darker_IV-VI": 0.5
     },
@@ -1401,6 +1426,7 @@
   ],
   "meta": {
     "model": "finetuned_mobilenetv2.h5",
+    "backbone": "mobilenetv2 (legacy)",
     "split": "test",
     "n_images": 352,
     "image_size": 128,

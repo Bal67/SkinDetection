@@ -1,0 +1,353 @@
+image_id,label,fitzpatrick,top1,top2,top3,top1_prob,top2_prob,top3_prob
+8afc38b0f9946c000acd5f36e0c85642,scabies,2,dariers disease,mycosis fungoides,scabies,0.4209,0.1775,0.1357
+697b3aac9b7b20f2679c56eb4d783b60,hailey hailey disease,2,hailey hailey disease,neutrophilic dermatoses,erythema multiforme,0.532,0.1602,0.0564
+39b6dba11944c2c4048a0b6b051604f1,photodermatoses,3,photodermatoses,nematode infection,hailey hailey disease,0.5166,0.1609,0.0588
+fcf77b81ace65aeb4e5ae8a24e0bdf69,hailey hailey disease,3,hailey hailey disease,neutrophilic dermatoses,nematode infection,0.6775,0.1052,0.0587
+c036e4b7c477951004346c23497e6fa0,vitiligo,5,vitiligo,lupus erythematosus,psoriasis,0.4138,0.264,0.1907
+d15ea5efb526bdce8bde8b385f76905a,mycosis fungoides,4,mycosis fungoides,dariers disease,granuloma annulare,0.6383,0.0718,0.0631
+0a633dbb61bed6b4dc5d54cc52376064,nematode infection,4,nematode infection,tungiasis,kaposi sarcoma,0.4907,0.1485,0.1233
+2ed8dcb2fd174a89aef24384e60c68e7,psoriasis,5,neutrophilic dermatoses,psoriasis,lupus erythematosus,0.3706,0.2512,0.0811
+e89ad6a20db6bbc5bac4049eb17bb0d5,erythema multiforme,4,erythema multiforme,lupus erythematosus,keloid,0.4162,0.2933,0.0741
+846947c9dce425dae8a40ea12ee1cd53,lupus erythematosus,4,photodermatoses,lupus erythematosus,erythema multiforme,0.6687,0.0623,0.0608
+14123577f30e3a495ac84e2cf1244a99,kaposi sarcoma,5,kaposi sarcoma,granuloma annulare,nematode infection,0.8869,0.0325,0.0259
+1d1ee437001fa401e4a5916c93f7e2ae,kaposi sarcoma,1,lupus erythematosus,kaposi sarcoma,neutrophilic dermatoses,0.2533,0.2449,0.0543
+8f5ca5103590109131738c717ce2aca4,neutrophilic dermatoses,4,neutrophilic dermatoses,erythema multiforme,pityriasis rosea,0.454,0.3606,0.0285
+3ce2abe6e074c2f7b09f4bdbf8bcfee9,dariers disease,3,lupus erythematosus,dariers disease,folliculitis,0.4009,0.1779,0.097
+936884bef9057714fe0485f7457a4359,hailey hailey disease,4,hailey hailey disease,allergic contact dermatitis,photodermatoses,0.5383,0.1255,0.1219
+e672dac0d8e357a7a6d9ee5e4fbedfd7,psoriasis,5,psoriasis,dariers disease,lupus erythematosus,0.4895,0.1877,0.0701
+720e5529a2ef6ab6559dac5dd7c2c3ff,granuloma annulare,4,granuloma annulare,nematode infection,photodermatoses,0.5588,0.1251,0.12
+b56767dc9ebbf23b2b295020bf3b9223,vitiligo,3,vitiligo,photodermatoses,lupus erythematosus,0.6841,0.0637,0.0418
+046830fd48e6a5c58d88c1241ac64959,tungiasis,1,tungiasis,psoriasis,granuloma pyogenic,0.6433,0.1142,0.0557
+fcc9ed3892215e076e9dc5b7a8bf81e7,squamous cell carcinoma,4,neutrophilic dermatoses,lupus erythematosus,melanoma,0.1247,0.1216,0.1178
+b1f5e53bd14607b73779265e8ba0acd4,mycosis fungoides,4,mycosis fungoides,dariers disease,lupus erythematosus,0.9437,0.0224,0.0139
+06024e3209a49eb808f450e87137363b,tungiasis,2,tungiasis,myiasis,granuloma pyogenic,0.9307,0.019,0.0099
+73ac23918c9537a8c792938b64f779e0,squamous cell carcinoma,4,granuloma annulare,psoriasis,lichen planus,0.1426,0.0854,0.0807
+95c2deba9f2b97f6f482f0be1c69c0c0,basal cell carcinoma,3,basal cell carcinoma,lichen planus,folliculitis,0.3503,0.17,0.1363
+c8bc376edcfe3858d466b543b8995e7b,lichen planus,4,kaposi sarcoma,nematode infection,granuloma annulare,0.5181,0.2072,0.0671
+2c8d74827d43e4fe97ef79ef47f70feb,neutrophilic dermatoses,4,neutrophilic dermatoses,lupus erythematosus,granuloma annulare,0.5672,0.071,0.0688
+4db07607f65f6d096771422eaf124c40,lupus erythematosus,4,lupus erythematosus,erythema multiforme,neutrophilic dermatoses,0.8325,0.0361,0.0259
+48c2c3c94f67826460083569254e1e13,lupus erythematosus,5,lupus erythematosus,neutrophilic dermatoses,erythema multiforme,0.6021,0.1777,0.0616
+5906081fcdc2eece8140e95a95f909f0,squamous cell carcinoma,-1,squamous cell carcinoma,vitiligo,granuloma pyogenic,0.2205,0.1392,0.1376
+13aa2de8804ae601cd45c1c4cac9bc6f,melanoma,4,basal cell carcinoma,melanoma,granuloma annulare,0.3743,0.2377,0.0958
+1dd6572da79158945a205b9586994c5f,dariers disease,5,kaposi sarcoma,dariers disease,granuloma annulare,0.3158,0.1822,0.1536
+c5d35b4740eb83ed02bfa93966de2276,basal cell carcinoma,3,basal cell carcinoma,squamous cell carcinoma,lupus erythematosus,0.4624,0.2863,0.0616
+151966ef80f25698a377df4ed52044ad,pityriasis rosea,3,pityriasis rosea,dariers disease,folliculitis,0.6344,0.1004,0.0699
+2180c71fa9d85f52c34e1890fc21dc52,lichen planus,6,scleroderma,lichen planus,allergic contact dermatitis,0.2775,0.1494,0.1149
+a67be91b107a1f01622e9fd77224decb,tungiasis,1,tungiasis,lichen planus,folliculitis,0.6562,0.1401,0.0469
+dde06a75c67565dae1426a9878a778a7,photodermatoses,4,photodermatoses,basal cell carcinoma,granuloma annulare,0.2059,0.1697,0.1104
+84849da0a2698f554aae6695998728c0,lupus erythematosus,4,lupus erythematosus,scabies,vitiligo,0.5429,0.287,0.0498
+d90824da56367bd6abe95175313c9842,lichen planus,3,lichen planus,photodermatoses,vitiligo,0.4176,0.2618,0.0478
+5b80aba14b5caf42e854d17d3cdf2df2,basal cell carcinoma,1,squamous cell carcinoma,melanoma,basal cell carcinoma,0.3832,0.1594,0.1416
+d355c68d7a408adefaac774c6ff660d9,squamous cell carcinoma,3,squamous cell carcinoma,basal cell carcinoma,melanoma,0.6364,0.1413,0.0854
+3775d9c4eb04403518cd9a3e002a9a7b,tungiasis,3,tungiasis,granuloma pyogenic,squamous cell carcinoma,0.7963,0.0484,0.0376
+dc0b089b0c2ee5f0eea901e28846e780,lupus erythematosus,6,lupus erythematosus,neutrophilic dermatoses,dariers disease,0.4926,0.115,0.0931
+fd67d2f1fffe3c92e3889a4f62f0fb3c,lichen planus,3,lichen planus,pityriasis rosea,scabies,0.6122,0.1016,0.0751
+4bc382e60cd8dbc8e63a8a8c99c5bdda,pityriasis rosea,2,pityriasis rosea,folliculitis,granuloma annulare,0.8628,0.0392,0.0323
+4ab4fa98f5acf7ec42886917128df401,melanoma,6,melanoma,tungiasis,kaposi sarcoma,0.4077,0.1747,0.1601
+15b7a778bd5ba545095250abce21549c,neutrophilic dermatoses,3,lichen planus,ehlers danlos syndrome,erythema multiforme,0.1624,0.1509,0.1298
+f4f41b57f4862dd72c7f65e9461c3859,nematode infection,2,keloid,tungiasis,nematode infection,0.2045,0.1713,0.1615
+29af4d3eb184c04c90e77ddfe38b7497,dariers disease,3,dariers disease,lupus erythematosus,scleroderma,0.7735,0.1028,0.0188
+299e9758e01ff3cd4a1c62bb04e6e2af,photodermatoses,3,lupus erythematosus,photodermatoses,scleroderma,0.2047,0.15,0.0888
+f50eeb173d4cd2ae8a261709538c4c95,ehlers danlos syndrome,5,ehlers danlos syndrome,vitiligo,lichen planus,0.9458,0.013,0.0107
+228c237da9bca35c55632db3a7b78264,squamous cell carcinoma,1,basal cell carcinoma,squamous cell carcinoma,tungiasis,0.4437,0.2229,0.0586
+6b174a5db8261270d5620a19f78898c8,basal cell carcinoma,6,basal cell carcinoma,lichen planus,melanoma,0.2502,0.1515,0.1458
+31ef1691003e2135a9e796254d596d64,basal cell carcinoma,5,basal cell carcinoma,melanoma,erythema multiforme,0.2162,0.1864,0.1231
+5d25c6673ea2d8b1268f9b644723843d,basal cell carcinoma,3,basal cell carcinoma,melanoma,squamous cell carcinoma,0.5755,0.1279,0.0677
+9952c88457356184b02ca495e261f30f,ehlers danlos syndrome,3,ehlers danlos syndrome,dariers disease,allergic contact dermatitis,0.4638,0.1935,0.0517
+99c09906cd9631d6ff648f680ce3c7a2,squamous cell carcinoma,4,melanoma,squamous cell carcinoma,scabies,0.2814,0.2706,0.1043
+c118e1b0b179f299b4a814d78059c137,squamous cell carcinoma,3,squamous cell carcinoma,basal cell carcinoma,mycosis fungoides,0.4165,0.1448,0.1231
+1ccfc4c3bcf417b3bda4d7f6fa955062,nematode infection,5,nematode infection,vitiligo,allergic contact dermatitis,0.7607,0.0469,0.0271
+1fa3de789800454bff91bcae5bf99599,tungiasis,3,tungiasis,granuloma pyogenic,scabies,0.8982,0.0214,0.0134
+8ab9e8d05a07e7a136cb20e694c4751c,psoriasis,5,granuloma annulare,psoriasis,vitiligo,0.2062,0.1456,0.1176
+82375585ff47e3738a54447e43b613f2,basal cell carcinoma,4,basal cell carcinoma,melanoma,neutrophilic dermatoses,0.4367,0.1449,0.1106
+524aaebd1cc57cbc543f8f1c499615d4,basal cell carcinoma,3,basal cell carcinoma,squamous cell carcinoma,melanoma,0.3878,0.3103,0.083
+3d260ca5402a0f5f3bfbfd4a2e39fc4b,lichen planus,4,lichen planus,scabies,pityriasis rosea,0.2382,0.1966,0.1691
+e6e57cfe0b37af73822bb1f779bab382,folliculitis,4,kaposi sarcoma,folliculitis,lupus erythematosus,0.4572,0.3021,0.0434
+3a0a2988017e41ff7791135332790fe4,granuloma annulare,3,neutrophilic dermatoses,granuloma annulare,psoriasis,0.4034,0.2657,0.0731
+9bfb3777fbfe372a890ce8ad2fe29d31,mycosis fungoides,1,mycosis fungoides,psoriasis,lupus erythematosus,0.5136,0.1245,0.0663
+782ae0d84b2d839bf0c726b7202d2b04,photodermatoses,3,photodermatoses,hailey hailey disease,neutrophilic dermatoses,0.4492,0.1115,0.0652
+cad07027f595a036c5b783545eba58ed,nematode infection,3,nematode infection,photodermatoses,hailey hailey disease,0.2082,0.1476,0.1463
+1ebd8355d8f52076800915ccf1ed71d5,nematode infection,4,photodermatoses,nematode infection,granuloma annulare,0.2777,0.2414,0.1556
+990d78eb61cc7e59bd11061bfa809895,psoriasis,2,psoriasis,scabies,lupus erythematosus,0.6201,0.1659,0.0546
+4741e7522c50a9920560aab2e1baaf0d,folliculitis,2,folliculitis,lupus erythematosus,kaposi sarcoma,0.4031,0.0752,0.0732
+3a99a5259471f5fee1d4db0d2067b413,basal cell carcinoma,4,folliculitis,basal cell carcinoma,squamous cell carcinoma,0.2851,0.2681,0.0897
+eb5eb3cb95af87d614b0dcb84cabe9b0,scabies,2,scabies,lupus erythematosus,psoriasis,0.4878,0.1497,0.0789
+426772b7739722773d5fa491c5a7cb8e,erythema multiforme,3,lupus erythematosus,squamous cell carcinoma,allergic contact dermatitis,0.5293,0.0658,0.0597
+f420eb73f0b50a89b5fddccc85796062,basal cell carcinoma,2,basal cell carcinoma,lichen planus,mycosis fungoides,0.2429,0.1093,0.0884
+d8bc984d67d39b8ed4254ba637d2499b,lupus erythematosus,5,lupus erythematosus,keloid,granuloma annulare,0.2686,0.133,0.1316
+4bf4c3e2b0c7a5de8b0e5016bf897b21,lichen planus,4,granuloma annulare,kaposi sarcoma,melanoma,0.4768,0.114,0.1087
+2ae230ad62fa5aea90cebe66b94a086a,scabies,5,dariers disease,scabies,psoriasis,0.2751,0.1816,0.0974
+4fa9a2f6266c5e685bbce85809b99bee,squamous cell carcinoma,5,melanoma,vitiligo,squamous cell carcinoma,0.2869,0.2132,0.2021
+59290b4f2af07e1ca832072f6ff7d9d5,folliculitis,4,lupus erythematosus,vitiligo,lichen planus,0.3221,0.2575,0.0985
+7a43ff75eda582db77bcefb8316a59be,granuloma annulare,4,nematode infection,granuloma annulare,kaposi sarcoma,0.6691,0.1525,0.0464
+ebc84b18fbfbd2d83909d0f2a43925a3,ehlers danlos syndrome,6,ehlers danlos syndrome,nematode infection,lichen planus,0.9587,0.0085,0.0073
+676a746861ec56c9f5e062ee392d7528,lichen planus,6,lichen planus,scleroderma,nematode infection,0.1656,0.1244,0.1173
+15faf965b2b5b13bab84ca28d04ba20c,keloid,3,keloid,erythema multiforme,lupus erythematosus,0.8114,0.0479,0.0438
+eac4a3ef188d89ba3e376553ee926b01,folliculitis,3,folliculitis,kaposi sarcoma,vitiligo,0.9725,0.0044,0.0037
+e315766377e07b3a78c789f1ef6cf529,melanoma,5,melanoma,basal cell carcinoma,squamous cell carcinoma,0.427,0.2135,0.1469
+04437cd3092a8922dc9af8100d350431,kaposi sarcoma,4,kaposi sarcoma,lupus erythematosus,mycosis fungoides,0.6397,0.0547,0.0344
+ab641dc2d33a9a81e7d931eb47e3be4e,mycosis fungoides,2,psoriasis,mycosis fungoides,scabies,0.2698,0.2399,0.2374
+e7c05b125f8c5b63ca95c677ec4d782b,scabies,3,lupus erythematosus,scabies,psoriasis,0.5683,0.1263,0.0774
+206a0e12f92e4dd2b29391310a08bcb9,scabies,3,pityriasis rosea,folliculitis,allergic contact dermatitis,0.3336,0.0837,0.0743
+7ca7b4f43008d9d065fd7add8a9daade,hailey hailey disease,4,hailey hailey disease,basal cell carcinoma,lupus erythematosus,0.3642,0.1384,0.1229
+a2004f2489970e8af42765e80096d676,folliculitis,3,pityriasis rosea,folliculitis,dariers disease,0.578,0.1216,0.0783
+f7c8654e248f45f26e71dde0503d99e4,lichen planus,2,folliculitis,photodermatoses,pityriasis rosea,0.4788,0.092,0.0677
+b4023c3f77bef8f43d61b8ac9c820b63,neutrophilic dermatoses,3,neutrophilic dermatoses,pityriasis rosea,erythema multiforme,0.6558,0.0891,0.0816
+78b0ce00ef97b56cc0ec17ac40f0648c,allergic contact dermatitis,3,allergic contact dermatitis,kaposi sarcoma,psoriasis,0.6784,0.0762,0.041
+25335e43a144c0bf16050fc213525035,psoriasis,2,scabies,lupus erythematosus,hailey hailey disease,0.3141,0.2201,0.0801
+0b283a47352d88ab55257c9fce2d3603,basal cell carcinoma,3,basal cell carcinoma,squamous cell carcinoma,melanoma,0.6756,0.1354,0.0461
+b90298329f06c4f0f9a7f6c2d926b993,granuloma annulare,4,nematode infection,granuloma annulare,photodermatoses,0.7363,0.1353,0.0417
+d1c875e6a77165f9954570121a4bf7b9,nematode infection,6,allergic contact dermatitis,nematode infection,vitiligo,0.6349,0.112,0.0421
+7e514cce023d25e1d79f29ccdc563c22,lichen planus,6,lichen planus,basal cell carcinoma,granuloma annulare,0.2849,0.1784,0.0765
+5f6bf606eaef0ac72ec1132558e8160a,squamous cell carcinoma,3,neutrophilic dermatoses,melanoma,squamous cell carcinoma,0.2445,0.2258,0.1809
+89bd35e31c3e0c51ae20bbb82ac7f4eb,granuloma annulare,3,granuloma annulare,mycosis fungoides,photodermatoses,0.647,0.1111,0.0303
+0dd88e8ca7395d947aa4f5946ef9b9b2,tungiasis,-1,tungiasis,squamous cell carcinoma,myiasis,0.7931,0.052,0.04
+dcaef54728c781709402a1a9bd3ae809,scleroderma,4,scleroderma,lupus erythematosus,mycosis fungoides,0.2223,0.2186,0.1401
+38155b83e8253783b70a58452f7ea15e,tungiasis,-1,tungiasis,folliculitis,myiasis,0.7271,0.0711,0.0266
+5b49758b834de470205e7ae175103ca2,lichen planus,4,lichen planus,dariers disease,lupus erythematosus,0.5901,0.1702,0.058
+8f5f86ef2e6434dc93dd3a15b18c34a1,scabies,3,dariers disease,kaposi sarcoma,granuloma annulare,0.2072,0.1798,0.1494
+c76e39f3b9f28c543849802af257b48e,scabies,5,dariers disease,psoriasis,scabies,0.3895,0.2125,0.1931
+016abe4884715af85cd3f309f93b9641,squamous cell carcinoma,2,squamous cell carcinoma,basal cell carcinoma,melanoma,0.4324,0.251,0.1223
+ede7107067b1ee2b087f6798cd15b27a,lichen planus,2,basal cell carcinoma,lichen planus,kaposi sarcoma,0.3143,0.1825,0.1223
+13ee407928501e0d9d3abe18afbbe959,lupus erythematosus,5,erythema multiforme,lupus erythematosus,neutrophilic dermatoses,0.1933,0.1914,0.0913
+c2392c9d6430b778f8777908e9e2bcc6,myiasis,3,basal cell carcinoma,granuloma pyogenic,melanoma,0.208,0.1785,0.1398
+af98116844cc81ff8cceaaba707315af,basal cell carcinoma,5,squamous cell carcinoma,lupus erythematosus,basal cell carcinoma,0.3638,0.2639,0.173
+2427f4ddad999d44139aa8b91e937885,squamous cell carcinoma,5,squamous cell carcinoma,melanoma,basal cell carcinoma,0.3661,0.1951,0.1736
+d6bdb8c6d2f2f3eaf0c8fae172146f12,vitiligo,5,vitiligo,allergic contact dermatitis,photodermatoses,0.509,0.1303,0.0864
+0e539304dcb700d132400c34f44d21b7,squamous cell carcinoma,3,squamous cell carcinoma,melanoma,granuloma annulare,0.2964,0.2042,0.1918
+8e4316c8cc5208eac7a1405d66cb401e,melanoma,3,tungiasis,nematode infection,melanoma,0.4426,0.186,0.101
+99aa381ecbeeabd3bd6afc1d1d1f4adb,ehlers danlos syndrome,4,lichen planus,ehlers danlos syndrome,dariers disease,0.4098,0.1653,0.0775
+da5c274e15de5f5d36f0f880d577d3bb,basal cell carcinoma,3,basal cell carcinoma,lichen planus,photodermatoses,0.6539,0.1129,0.0442
+009c75339a21bb84a6425be6a95938d6,mycosis fungoides,3,mycosis fungoides,scabies,scleroderma,0.5812,0.0839,0.0602
+df2be698ca8e31a61c791f839b371576,myiasis,-1,myiasis,tungiasis,folliculitis,0.8893,0.0134,0.0132
+7d571c0abf293de3672b7d73a45d4d13,folliculitis,4,folliculitis,kaposi sarcoma,myiasis,0.9632,0.0066,0.0057
+4f279e4e105fbce4c1500a782ce42dd8,tungiasis,4,tungiasis,granuloma pyogenic,squamous cell carcinoma,0.6511,0.0589,0.0437
+1bee845510fc5603ae11472a9996a66c,dariers disease,6,dariers disease,psoriasis,lichen planus,0.3929,0.2751,0.0751
+fbcc48eaf7a00a44c79519a6d8992483,keloid,5,keloid,lupus erythematosus,vitiligo,0.3765,0.2099,0.1478
+e3727c5b4b75f017baf1aba0aad019e7,squamous cell carcinoma,2,squamous cell carcinoma,basal cell carcinoma,lupus erythematosus,0.722,0.0818,0.0341
+bb88504c6d54793498b256976f10bc3e,lichen planus,3,lichen planus,pityriasis rosea,vitiligo,0.6684,0.1158,0.0512
+2baec5089060b0f8400e14ee29bab4ac,lichen planus,3,photodermatoses,lichen planus,keloid,0.2296,0.1861,0.1111
+f776c95925dbe30f452d57831ce8c27e,scleroderma,6,scleroderma,vitiligo,lupus erythematosus,0.1922,0.1588,0.1382
+9eb488a5891f2a4fce1d2a930b20a3a6,lichen planus,6,lichen planus,vitiligo,nematode infection,0.5557,0.1106,0.0626
+352b46cee85be69a33b90987c4df3349,hailey hailey disease,3,hailey hailey disease,mycosis fungoides,kaposi sarcoma,0.3913,0.1811,0.0804
+5f1a4d80fdc87563f3cc7174241c3477,basal cell carcinoma,5,basal cell carcinoma,hailey hailey disease,neutrophilic dermatoses,0.3863,0.3309,0.0606
+d981688b62e7dc10c39869ef0a2d2ea6,lichen planus,5,lichen planus,folliculitis,ehlers danlos syndrome,0.1718,0.1704,0.1057
+f2b3ff1a621b7146f3270d621f86090b,hailey hailey disease,4,hailey hailey disease,basal cell carcinoma,photodermatoses,0.3715,0.1663,0.0919
+eb3fede5df6127d52cd57873cd859011,granuloma annulare,6,vitiligo,lupus erythematosus,scleroderma,0.1752,0.1456,0.1115
+41a0cdda39f31a626fb90e2e06ce7e4f,pityriasis rosea,4,pityriasis rosea,dariers disease,folliculitis,0.288,0.1631,0.1511
+34cfe965d8162681c8af4cd2cd03938f,granuloma annulare,3,nematode infection,granuloma annulare,lichen planus,0.631,0.1951,0.0353
+efbcdff91845c8e31a42e5f1d15f0c64,scleroderma,6,scleroderma,dariers disease,lupus erythematosus,0.6659,0.0901,0.0761
+6c059a7743c2b4ee2e0d4a07b3b0ba57,dariers disease,4,dariers disease,scabies,erythema multiforme,0.9016,0.0376,0.011
+538ba57af12f863e9be0b539d64cf407,allergic contact dermatitis,5,allergic contact dermatitis,mycosis fungoides,scleroderma,0.5807,0.0959,0.0453
+3d6917189f7e68126cf896322c8f81e5,lichen planus,6,lichen planus,lupus erythematosus,vitiligo,0.8026,0.0495,0.0319
+6232e9e0d448b950b9adac2b83a05710,squamous cell carcinoma,4,vitiligo,squamous cell carcinoma,granuloma pyogenic,0.5685,0.1204,0.1071
+6dab8f115db4ece5613a6aae83280ab0,squamous cell carcinoma,4,keloid,vitiligo,lupus erythematosus,0.2705,0.2443,0.0798
+ed00c74f31d27200397604acf50ca753,lichen planus,4,lichen planus,vitiligo,photodermatoses,0.6743,0.1115,0.0428
+395d4ac2bdccd66b28aebb962a0e49d0,tungiasis,3,tungiasis,squamous cell carcinoma,scabies,0.7656,0.0615,0.0354
+c8ba7b2b798e5a2f6a15d46e677cfb29,nematode infection,5,nematode infection,granuloma annulare,allergic contact dermatitis,0.9744,0.0074,0.0058
+fbe705c4efac2b3658d643e8cb8ae2d6,dariers disease,4,granuloma annulare,kaposi sarcoma,dariers disease,0.1437,0.1338,0.1291
+894778422e81abebadc30e1dec63b529,squamous cell carcinoma,-1,squamous cell carcinoma,lichen planus,lupus erythematosus,0.4051,0.1175,0.102
+821d29df05a1b894a73a1e8a5c7ff754,squamous cell carcinoma,-1,lichen planus,squamous cell carcinoma,basal cell carcinoma,0.6341,0.087,0.0423
+3317a4d30e2c92d434f21a1a204678d1,neutrophilic dermatoses,2,neutrophilic dermatoses,erythema multiforme,photodermatoses,0.4233,0.2379,0.0756
+416aa56fed954670bd1a6ed347b174c8,tungiasis,2,tungiasis,squamous cell carcinoma,myiasis,0.8647,0.0378,0.0296
+2da01a06b7835f458d8b27ccf5302cc2,granuloma pyogenic,2,granuloma pyogenic,scabies,nematode infection,0.602,0.1082,0.0449
+a02e6b04eded5ce846a4110b2f46176b,lupus erythematosus,3,lupus erythematosus,vitiligo,photodermatoses,0.4984,0.1385,0.0885
+9086406032bc408eadf08d23380c20d3,psoriasis,4,lupus erythematosus,psoriasis,basal cell carcinoma,0.5065,0.171,0.0629
+a7174cde13b3afa0661a71f4b20cbd5e,vitiligo,5,ehlers danlos syndrome,neutrophilic dermatoses,lupus erythematosus,0.1182,0.1143,0.0923
+3ffd8ba932a5ee851875e9c4be3d7101,neutrophilic dermatoses,4,allergic contact dermatitis,basal cell carcinoma,lupus erythematosus,0.1768,0.1684,0.1341
+e177c1b1ca76aebe0cb5c990d1bff462,scleroderma,6,scleroderma,ehlers danlos syndrome,lichen planus,0.3846,0.1958,0.0858
+63640be7785a78161109aa64f0a74879,lupus erythematosus,4,lupus erythematosus,vitiligo,nematode infection,0.3567,0.2537,0.0515
+67df381b4828feddef55b2fe4f55108a,pityriasis rosea,3,pityriasis rosea,photodermatoses,folliculitis,0.258,0.1945,0.0867
+34aa648c5d13cc995c0f0892c90e7de0,lupus erythematosus,6,lupus erythematosus,psoriasis,dariers disease,0.7579,0.0484,0.0442
+e7d807b131b6f493120bbc458ace111d,vitiligo,3,allergic contact dermatitis,vitiligo,lichen planus,0.2415,0.1319,0.1149
+ef5fa8bf809d32eba129b59ecebcbdf3,folliculitis,3,folliculitis,pityriasis rosea,psoriasis,0.3412,0.1286,0.1265
+b6efb8e75edeefb2a3bf2069e41fcac4,basal cell carcinoma,-1,basal cell carcinoma,melanoma,lichen planus,0.7373,0.0446,0.0256
+106171fb4cdf5668101275a730ee300f,scleroderma,6,scleroderma,lichen planus,vitiligo,0.47,0.1204,0.1074
+7b5afdf99bbd516b44cdf728e1850bbb,lichen planus,5,lichen planus,vitiligo,nematode infection,0.76,0.0982,0.0689
+365bc91d2acf96e505e25322d765c062,lichen planus,4,lichen planus,dariers disease,melanoma,0.2403,0.1396,0.1069
+f27f2aff07f470c5281c5f0beae28808,psoriasis,4,psoriasis,scabies,lupus erythematosus,0.4772,0.2269,0.0587
+40b9006b90679ab5560ebe3ce1a589a1,basal cell carcinoma,2,basal cell carcinoma,granuloma pyogenic,melanoma,0.4524,0.2597,0.05
+ed2d82478acbd3d69fcbcca5b8e60ea0,dariers disease,4,dariers disease,folliculitis,scabies,0.4103,0.1993,0.074
+296ec4776e89a65ce8e262ed545ed4bb,basal cell carcinoma,4,lichen planus,allergic contact dermatitis,melanoma,0.1124,0.1,0.0877
+2be140422a9716b494b20701f95ce039,folliculitis,3,folliculitis,photodermatoses,lupus erythematosus,0.4603,0.0926,0.0542
+143032b49ca9b35c3a4f58e63932931d,hailey hailey disease,4,hailey hailey disease,allergic contact dermatitis,neutrophilic dermatoses,0.956,0.0128,0.0043
+1e7f2448699a3bc01ec92bcea3887eb1,pityriasis rosea,6,pityriasis rosea,lichen planus,dariers disease,0.6343,0.1301,0.076
+77a394e99c20d37feefdce257f2952a2,tungiasis,1,tungiasis,squamous cell carcinoma,granuloma pyogenic,0.8885,0.0264,0.015
+ef6f4d9bf438f4638ac22781239ecb9a,nematode infection,3,basal cell carcinoma,photodermatoses,folliculitis,0.1638,0.1551,0.1426
+a50b0037bf32e070914a5740f8db7a8b,squamous cell carcinoma,6,lupus erythematosus,neutrophilic dermatoses,nematode infection,0.2101,0.0904,0.0857
+8ed4dad8580a4dfb0900da5ab47534a2,scabies,5,scabies,dariers disease,pityriasis rosea,0.4547,0.102,0.1012
+ddb15beb69fc4276b74a948a00eed2c8,melanoma,4,melanoma,tungiasis,squamous cell carcinoma,0.6745,0.0893,0.0864
+032b3adb839c23047aedc87707ff978e,basal cell carcinoma,5,basal cell carcinoma,allergic contact dermatitis,melanoma,0.6426,0.045,0.0375
+acf8b33dcf50137375480c55093b519d,hailey hailey disease,4,hailey hailey disease,lupus erythematosus,neutrophilic dermatoses,0.5025,0.0969,0.0856
+4f0eb083a35b53705df9e3fca1f97ba2,erythema multiforme,3,erythema multiforme,pityriasis rosea,kaposi sarcoma,0.8087,0.1048,0.0271
+6dd76797185a717715a04206f5151d8f,squamous cell carcinoma,6,squamous cell carcinoma,melanoma,ehlers danlos syndrome,0.2095,0.2079,0.1242
+975681e62d4e5ea00b03528dce284363,dariers disease,5,dariers disease,scabies,kaposi sarcoma,0.8799,0.0684,0.0115
+ab6f88d273564516c297046fe9ad1c81,kaposi sarcoma,5,kaposi sarcoma,allergic contact dermatitis,erythema multiforme,0.8125,0.0608,0.0293
+2065bc4577edd285257128ee8be209e9,lupus erythematosus,6,lupus erythematosus,vitiligo,psoriasis,0.5724,0.1396,0.0534
+487f5c621557c485e112fc7ea6cf2b65,scabies,2,scabies,dariers disease,psoriasis,0.5018,0.1639,0.0958
+9840d445e6a951df7b55935c070545f1,scabies,3,lichen planus,folliculitis,photodermatoses,0.3562,0.2012,0.0749
+44e63f6f9c0209d7e976eb6eed0d79b3,photodermatoses,4,photodermatoses,scleroderma,pityriasis rosea,0.5652,0.1067,0.0513
+a290ea9aadbdb46fddd3740ff58d651a,lichen planus,5,allergic contact dermatitis,lupus erythematosus,hailey hailey disease,0.1617,0.1093,0.1078
+4358c4f50f7c2101213335d8008aea4a,lichen planus,4,lichen planus,nematode infection,folliculitis,0.8478,0.03,0.0196
+e439fd3bbb9e7d2cc9f22f2f766828f3,myiasis,5,tungiasis,psoriasis,squamous cell carcinoma,0.3387,0.1033,0.0907
+2e9a44d7373e97c682c937249b38d622,melanoma,3,basal cell carcinoma,squamous cell carcinoma,folliculitis,0.7134,0.0496,0.0348
+79fbcb967214343eff45f9a194413650,folliculitis,4,granuloma pyogenic,folliculitis,neutrophilic dermatoses,0.2198,0.1248,0.1054
+de608b752927ceeabb7bac264a52942d,squamous cell carcinoma,4,vitiligo,lupus erythematosus,squamous cell carcinoma,0.18,0.1227,0.1203
+b394018dd777aaf58edc5504b52ed1b7,basal cell carcinoma,2,squamous cell carcinoma,basal cell carcinoma,lupus erythematosus,0.5768,0.2723,0.0327
+e9374d394a4ac37b376e1ed2fbd51560,photodermatoses,3,photodermatoses,nematode infection,granuloma annulare,0.4598,0.1475,0.1108
+574d0e09b58cae7c6f61d417e63fcd25,scleroderma,4,nematode infection,granuloma annulare,scleroderma,0.1949,0.1568,0.1531
+50bb16c1bfa029e80a55ce64149f3338,mycosis fungoides,5,kaposi sarcoma,basal cell carcinoma,melanoma,0.2433,0.1428,0.0847
+c94e4af9862e5883872c85f4912433bd,pityriasis rosea,3,pityriasis rosea,photodermatoses,hailey hailey disease,0.2935,0.1306,0.1279
+40c298a68522a302b8a22ebf3395194e,psoriasis,4,psoriasis,dariers disease,neutrophilic dermatoses,0.5853,0.0703,0.0542
+523b2be73e6902a39f0f44996e8cc60f,squamous cell carcinoma,4,squamous cell carcinoma,basal cell carcinoma,lupus erythematosus,0.4035,0.2093,0.0906
+06967f5227a4227896b2b7c5e6901652,photodermatoses,3,photodermatoses,lichen planus,vitiligo,0.9442,0.0143,0.0104
+9d2941f49b627489c4da60170c25fe93,ehlers danlos syndrome,3,ehlers danlos syndrome,granuloma annulare,vitiligo,0.6268,0.1015,0.0554
+bb79039b52e9e693c47056248372931b,folliculitis,2,nematode infection,hailey hailey disease,basal cell carcinoma,0.2915,0.135,0.1265
+754f44724bbb7c4421c4fd240227190d,keloid,1,keloid,photodermatoses,basal cell carcinoma,0.3303,0.1677,0.0866
+bdfcc02ca14c35a728b619018afbe816,ehlers danlos syndrome,4,ehlers danlos syndrome,granuloma annulare,lichen planus,0.9067,0.0158,0.0144
+06c7baa22fc3647a98fc8fe2e2985a77,squamous cell carcinoma,4,squamous cell carcinoma,tungiasis,melanoma,0.8699,0.0198,0.0197
+c78072771a39d4d94d0430cf8ec6dab3,basal cell carcinoma,4,basal cell carcinoma,lupus erythematosus,squamous cell carcinoma,0.7378,0.0623,0.0357
+7095a0c39e265bf66211267d2f5c482d,lichen planus,3,lupus erythematosus,vitiligo,scabies,0.2723,0.1317,0.1201
+5a6480d3594d735eedf67a29281a1819,mycosis fungoides,2,mycosis fungoides,granuloma annulare,lichen planus,0.9417,0.0174,0.0069
+938528c2ba772fc83832aeca85171cf2,melanoma,1,basal cell carcinoma,squamous cell carcinoma,melanoma,0.4222,0.2288,0.1262
+d4e34cb55c84345465f5e931ec4e014e,basal cell carcinoma,2,melanoma,squamous cell carcinoma,basal cell carcinoma,0.2758,0.2073,0.1524
+e6c84701c4e2a4e7b9b161aa6b0fa665,pityriasis rosea,2,pityriasis rosea,granuloma annulare,nematode infection,0.3752,0.228,0.0636
+442efb92b5f59923668f0d2e6316b9cb,melanoma,4,melanoma,granuloma pyogenic,nematode infection,0.419,0.1549,0.1318
+6d26c54ea783d44f038562bfacbe4043,granuloma pyogenic,5,granuloma pyogenic,tungiasis,melanoma,0.9336,0.0215,0.0076
+21914ec8dd8a83b0e162ffbe0f4bfae2,lichen planus,3,lichen planus,granuloma annulare,nematode infection,0.4522,0.104,0.084
+01ba602def4506d8bfd5900cccd2ab4d,basal cell carcinoma,2,squamous cell carcinoma,melanoma,myiasis,0.3274,0.1592,0.1196
+2131d014a301d4773e32bdc6ef466b53,psoriasis,4,psoriasis,scleroderma,dariers disease,0.8881,0.013,0.012
+98280785c17860f879d21525a92af31f,basal cell carcinoma,4,hailey hailey disease,basal cell carcinoma,folliculitis,0.288,0.1443,0.0892
+688ac2ba9aff76f589c14be2813f9d5f,basal cell carcinoma,4,melanoma,lupus erythematosus,nematode infection,0.2571,0.1023,0.0967
+12ac338804ee17a60ddafa93a9f6f69a,scabies,6,lichen planus,vitiligo,nematode infection,0.4314,0.0767,0.0766
+1e01038fd6b45bf09a462dd6cb52ff41,tungiasis,3,tungiasis,granuloma pyogenic,squamous cell carcinoma,0.894,0.0159,0.0112
+e779a86c1580e4d55ba45cb3ae677ecc,psoriasis,2,erythema multiforme,psoriasis,nematode infection,0.2471,0.1519,0.1472
+9d83cf9b9cc4a03580de63b62ea2a8f0,basal cell carcinoma,4,squamous cell carcinoma,basal cell carcinoma,neutrophilic dermatoses,0.302,0.1946,0.156
+94b5882641907692239e332a177271d2,lupus erythematosus,6,lupus erythematosus,vitiligo,ehlers danlos syndrome,0.9041,0.0252,0.0133
+062c2757391fb587ab046eb7ff517018,nematode infection,3,nematode infection,photodermatoses,hailey hailey disease,0.1783,0.1346,0.1334
+eec6fc5623b1d46fa196daad1e92d3a5,neutrophilic dermatoses,4,neutrophilic dermatoses,erythema multiforme,pityriasis rosea,0.3567,0.1726,0.1059
+3b0a85962bfea9a937d4619ef7e3ea37,basal cell carcinoma,2,basal cell carcinoma,squamous cell carcinoma,lupus erythematosus,0.6212,0.1634,0.0297
+aba1cb1aed55ede8db7ccdd9bcd5e9ff,pityriasis rosea,3,pityriasis rosea,folliculitis,photodermatoses,0.5668,0.2381,0.031
+5a3a80d8a94389527e63ac165c94d636,lichen planus,4,lichen planus,vitiligo,dariers disease,0.4756,0.1605,0.0847
+f43b3a81dc7b23bbcc19d2613b8150da,folliculitis,2,folliculitis,hailey hailey disease,kaposi sarcoma,0.8399,0.0311,0.0202
+67c9271813f07f5311e2cb435a817403,basal cell carcinoma,2,lupus erythematosus,basal cell carcinoma,granuloma pyogenic,0.3968,0.3272,0.0328
+b908d78bd5547be7a6754de3e48d4b8a,pityriasis rosea,4,pityriasis rosea,photodermatoses,granuloma annulare,0.3199,0.2269,0.2096
+b7dbde348cc29c4987dbf35edaa4ce06,tungiasis,4,tungiasis,squamous cell carcinoma,granuloma pyogenic,0.574,0.1217,0.0652
+d2a78f1187cb9971b5632ad3fa9bef9b,scabies,1,scabies,neutrophilic dermatoses,granuloma annulare,0.2997,0.1311,0.1154
+1dc929c4a7deabf67edbce72e5750311,neutrophilic dermatoses,-1,neutrophilic dermatoses,squamous cell carcinoma,folliculitis,0.3611,0.1502,0.0716
+9163c0dc32069e063ef96a82941cccb3,mycosis fungoides,5,lichen planus,allergic contact dermatitis,mycosis fungoides,0.1488,0.1,0.097
+29a86d89608e63ccfc57b1e40c827ead,melanoma,4,squamous cell carcinoma,nematode infection,tungiasis,0.2011,0.1815,0.152
+f30ddfdc210a1800e6dad9189007f332,hailey hailey disease,2,hailey hailey disease,nematode infection,allergic contact dermatitis,0.9408,0.0196,0.0104
+9220d313606d63dfbcfdf77eed378706,squamous cell carcinoma,1,basal cell carcinoma,squamous cell carcinoma,lupus erythematosus,0.6444,0.0908,0.0424
+2fc16d5e49a3a6eae37247501df47ec4,hailey hailey disease,4,hailey hailey disease,scleroderma,allergic contact dermatitis,0.5586,0.1231,0.1141
+ebcf2b50dd943c700d4e2b586fcd4425,basal cell carcinoma,3,lupus erythematosus,squamous cell carcinoma,keloid,0.5128,0.0822,0.0638
+f9b6beafa49dd83963f22ebb5357e954,hailey hailey disease,3,hailey hailey disease,mycosis fungoides,lupus erythematosus,0.8552,0.0298,0.0215
+b8f7a8261d720585ae60f800b4eaf999,squamous cell carcinoma,-1,lichen planus,myiasis,vitiligo,0.7271,0.0655,0.0322
+9b518b58085822ad40df1ff8bd7d04f3,hailey hailey disease,1,neutrophilic dermatoses,hailey hailey disease,nematode infection,0.1673,0.154,0.1173
+3ad5c9d9bc5932aea5907970f618c7b7,lichen planus,6,lichen planus,lupus erythematosus,folliculitis,0.3316,0.132,0.0949
+f34d307aea91ab99ffd5781f4312bbc8,lichen planus,3,folliculitis,scabies,lichen planus,0.2109,0.1114,0.0933
+1fc4d8bc1dd9e083a3173e7fcabc54c3,pityriasis rosea,4,pityriasis rosea,photodermatoses,folliculitis,0.7537,0.0422,0.03
+adffd0c07a752c4b7e33578c543ecd4c,photodermatoses,4,photodermatoses,nematode infection,lichen planus,0.3743,0.1786,0.1091
+92f71aa41edaac6d11d0925d5ec994d9,mycosis fungoides,2,mycosis fungoides,dariers disease,scabies,0.6969,0.1336,0.0476
+e34ef85c772594c2dc604746f9ade8ca,psoriasis,3,psoriasis,photodermatoses,keloid,0.1666,0.1323,0.101
+e51e86a528148d2b8c0ae4e24b1d8859,pityriasis rosea,3,pityriasis rosea,hailey hailey disease,allergic contact dermatitis,0.6098,0.0937,0.0482
+849d862189a58f44a063ee6ba1a80b1b,basal cell carcinoma,5,basal cell carcinoma,squamous cell carcinoma,lupus erythematosus,0.6613,0.1779,0.0368
+33f9290032b82d6b8dfdf98eb19dde22,nematode infection,4,nematode infection,granuloma annulare,photodermatoses,0.6498,0.1592,0.0655
+be3917e8de363b96d6c8684d8940c7d8,folliculitis,2,basal cell carcinoma,lichen planus,folliculitis,0.1842,0.1793,0.1773
+064f39810e82e6097f9c187f003ede0a,basal cell carcinoma,4,basal cell carcinoma,squamous cell carcinoma,psoriasis,0.2952,0.2377,0.1499
+aa430d679ffc4c88fca562a809ef5075,lichen planus,4,lichen planus,pityriasis rosea,dariers disease,0.334,0.2157,0.0708
+4e1ea4d36e0d8078f9a7662f05c4179d,tungiasis,2,tungiasis,granuloma pyogenic,squamous cell carcinoma,0.7716,0.1257,0.0266
+b84da9c8e6bf7fa5f84bdee53a64d089,tungiasis,2,tungiasis,myiasis,squamous cell carcinoma,0.7623,0.114,0.0236
+ab4128570af871732f2fd5f986d8a4fc,kaposi sarcoma,2,lupus erythematosus,basal cell carcinoma,vitiligo,0.2875,0.1405,0.0716
+e9e1fe71a96489b9d37709645f127ad1,folliculitis,3,pityriasis rosea,folliculitis,kaposi sarcoma,0.2243,0.2199,0.1362
+8d8aaf80f77278f629697ef2f93d01b5,basal cell carcinoma,3,squamous cell carcinoma,lupus erythematosus,mycosis fungoides,0.4527,0.1913,0.1443
+39bef78824cddba30883954d4f12c6e0,squamous cell carcinoma,2,basal cell carcinoma,squamous cell carcinoma,mycosis fungoides,0.3987,0.3026,0.1209
+23aa8cd003c57a4e4c63793f51cae0c2,nematode infection,4,kaposi sarcoma,allergic contact dermatitis,psoriasis,0.363,0.2372,0.0831
+9575b8c8f7258a3bcdb54ba39e2573a8,lichen planus,5,dariers disease,psoriasis,ehlers danlos syndrome,0.278,0.106,0.1015
+a18693f7fc1cf91848857da05da1efb6,basal cell carcinoma,4,melanoma,basal cell carcinoma,lichen planus,0.3584,0.1543,0.0722
+e0ccb5e57e16d8b60219796f294c3ae9,psoriasis,5,psoriasis,dariers disease,kaposi sarcoma,0.3533,0.251,0.1038
+96a8bcd7d056b023ee012e5d5c362d42,nematode infection,4,nematode infection,granuloma pyogenic,photodermatoses,0.4278,0.2706,0.0438
+ec584dae81ab727239444c47e568d5f0,neutrophilic dermatoses,2,neutrophilic dermatoses,photodermatoses,erythema multiforme,0.3168,0.2412,0.0877
+1b3fcfe2a61b2faba67b18922c83b8b9,scabies,5,squamous cell carcinoma,keloid,basal cell carcinoma,0.2418,0.1054,0.0658
+a331096f0b17c2523775002498f48d9a,lupus erythematosus,4,lupus erythematosus,basal cell carcinoma,psoriasis,0.3008,0.0803,0.0789
+1b5597f6278cb11bd2b6c70943d5b64c,pityriasis rosea,2,pityriasis rosea,folliculitis,photodermatoses,0.3019,0.1556,0.1045
+ffe7c790b3d6cbefbd42422d54deccb4,lichen planus,5,lichen planus,erythema multiforme,granuloma annulare,0.5439,0.107,0.0669
+7c695a016da226fff5301240baa787d1,allergic contact dermatitis,3,allergic contact dermatitis,hailey hailey disease,photodermatoses,0.4924,0.2096,0.079
+c3bb36c5ce3c5a4027202b96590f2950,hailey hailey disease,3,hailey hailey disease,basal cell carcinoma,lupus erythematosus,0.5442,0.0722,0.0427
+ecf08d0204ddf9e53d52b6d7a3413273,lichen planus,5,lichen planus,granuloma annulare,kaposi sarcoma,0.5035,0.1782,0.088
+3d79a6f8f4de2f9918b672138c3b6d00,dariers disease,2,dariers disease,lupus erythematosus,mycosis fungoides,0.6975,0.0727,0.0585
+399d923af5d3a27f638f0292ca0c3d7f,basal cell carcinoma,4,basal cell carcinoma,photodermatoses,allergic contact dermatitis,0.7484,0.0374,0.0372
+5b9ca4868b5919ead2a0ff0ac520d014,lichen planus,6,lichen planus,vitiligo,ehlers danlos syndrome,0.1842,0.1776,0.1097
+864b66694cf32749e939ac369da1d377,myiasis,3,tungiasis,lichen planus,myiasis,0.5276,0.1182,0.0887
+3de91aceb28958ccd0bb5cf685cbd285,allergic contact dermatitis,3,allergic contact dermatitis,nematode infection,hailey hailey disease,0.3468,0.1486,0.1314
+ee551b7ed9f573467811400e6fe38ba4,lupus erythematosus,4,lupus erythematosus,allergic contact dermatitis,scleroderma,0.7835,0.0798,0.032
+c11238c07feb0255585fc85ff20595cf,nematode infection,5,nematode infection,granuloma annulare,allergic contact dermatitis,0.4753,0.1531,0.1378
+4e7f1251e17184621d52f441c4acc44d,mycosis fungoides,4,mycosis fungoides,granuloma annulare,pityriasis rosea,0.399,0.2699,0.0623
+274fcc8858e2524666aac80c117c1eae,mycosis fungoides,3,mycosis fungoides,granuloma annulare,scabies,0.7877,0.0307,0.0301
+91551363eb838104c5bbea3e8cdc4535,pityriasis rosea,4,pityriasis rosea,dariers disease,scabies,0.6614,0.0747,0.0568
+af2a68fe083b47f59589f2096043aa39,squamous cell carcinoma,2,mycosis fungoides,squamous cell carcinoma,granuloma annulare,0.1891,0.1861,0.1761
+063e8484c60d38b357b37f20054a32c7,basal cell carcinoma,3,basal cell carcinoma,squamous cell carcinoma,lupus erythematosus,0.8273,0.0563,0.0219
+3f2c3e10a38558965458599b2c95f56c,neutrophilic dermatoses,5,neutrophilic dermatoses,erythema multiforme,hailey hailey disease,0.7258,0.2053,0.0137
+aeec721bdc4094e13cfc48cdb942cb5c,folliculitis,5,neutrophilic dermatoses,kaposi sarcoma,erythema multiforme,0.4352,0.1897,0.0723
+37eae27b3b60a420dade1a950f7bfb81,dariers disease,3,dariers disease,scabies,kaposi sarcoma,0.8702,0.0414,0.0352
+a8eccd7a0c43b5ace86bf8025f41a53e,vitiligo,5,lupus erythematosus,vitiligo,basal cell carcinoma,0.5179,0.2004,0.0678
+810c3c9cc4f205c468ba8e0052299ae6,scabies,2,scabies,photodermatoses,basal cell carcinoma,0.2122,0.1132,0.1002
+6d589d145a183c5642047b1529b5e959,granuloma pyogenic,2,granuloma pyogenic,basal cell carcinoma,tungiasis,0.369,0.1635,0.1001
+5878a695f97382d91e91d7979584139e,erythema multiforme,4,erythema multiforme,nematode infection,pityriasis rosea,0.8763,0.0361,0.0186
+96626ea5229deaebd56c2ca7ae39738d,hailey hailey disease,3,hailey hailey disease,lupus erythematosus,scabies,0.6909,0.0891,0.0624
+b1edc6b31b2de81f7fe5fb43cf882ba5,nematode infection,2,nematode infection,myiasis,granuloma annulare,0.504,0.1077,0.0677
+7aa128d60de3bc2ab010d87cf3bd6ad7,basal cell carcinoma,1,basal cell carcinoma,hailey hailey disease,lupus erythematosus,0.562,0.1556,0.0498
+b979613b362ad5e800ccd380ac29b8fe,squamous cell carcinoma,6,kaposi sarcoma,melanoma,squamous cell carcinoma,0.5483,0.1165,0.1051
+4d7ebeff8ea698edc7e12fb85426f8dc,hailey hailey disease,3,hailey hailey disease,neutrophilic dermatoses,allergic contact dermatitis,0.6302,0.0918,0.0827
+1fdc07ae1aafee3e5c3aab4e3e44027b,scabies,3,scabies,dariers disease,pityriasis rosea,0.4961,0.3989,0.034
+b6eb2e5169ba126d16eecc70836f758a,erythema multiforme,4,erythema multiforme,keloid,neutrophilic dermatoses,0.4432,0.096,0.0751
+09a75e2a4e9bbc303e6e0cb3e16a32d8,squamous cell carcinoma,3,squamous cell carcinoma,basal cell carcinoma,melanoma,0.5783,0.2372,0.0616
+e927c81f6b508269c83350184f124a2d,mycosis fungoides,3,mycosis fungoides,granuloma annulare,basal cell carcinoma,0.8106,0.057,0.0234
+26ad865bcdc627dfa0dc2e419252a0ed,melanoma,2,tungiasis,melanoma,nematode infection,0.2288,0.1965,0.146
+3e4a274cdc0acb42a64dffa7b034a9cf,squamous cell carcinoma,2,squamous cell carcinoma,basal cell carcinoma,melanoma,0.4648,0.4193,0.02
+7605bcd57d993eaf0fe5b212c0d4e337,nematode infection,4,nematode infection,scabies,neutrophilic dermatoses,0.3458,0.1196,0.0745
+c3d233696079e886f7468c997ff2337b,psoriasis,4,psoriasis,nematode infection,tungiasis,0.6027,0.1081,0.0772
+c4019e6a8693ad04c1df4949518aaf2d,basal cell carcinoma,4,basal cell carcinoma,squamous cell carcinoma,lupus erythematosus,0.5906,0.1485,0.1273
+ac92fe145c794a1ac751ffcf0bc1d2d0,pityriasis rosea,4,ehlers danlos syndrome,vitiligo,lichen planus,0.3219,0.309,0.1015
+fb11cc09b9df6abad072d5e45f2d45c5,basal cell carcinoma,3,folliculitis,photodermatoses,pityriasis rosea,0.1703,0.1497,0.117
+2bd51eeec33997f3619f78356f3b993f,psoriasis,5,psoriasis,kaposi sarcoma,erythema multiforme,0.6991,0.0645,0.0244
+692165241f3c213969652e1e0f6e90cd,scabies,2,pityriasis rosea,mycosis fungoides,scabies,0.4172,0.1548,0.1283
+506a26b96d7d1b6a495c552f3ef201e4,kaposi sarcoma,5,kaposi sarcoma,nematode infection,lupus erythematosus,0.3411,0.2612,0.0579
+17b436a80bf65b94f1e68a1dad81245b,scabies,2,dariers disease,scabies,psoriasis,0.6142,0.3016,0.0299
+7bb22c88ba0e0b1e561cdbc411922f96,tungiasis,2,tungiasis,squamous cell carcinoma,granuloma pyogenic,0.8105,0.0694,0.0288
+f1a6037a696bde96bfc13f19d35f31f2,lichen planus,5,lichen planus,psoriasis,nematode infection,0.3073,0.1421,0.081
+58e43c334f4ea845aebf46efd3377828,lichen planus,3,photodermatoses,lichen planus,vitiligo,0.463,0.2201,0.118
+88f27b40a550a443d75253d96935542f,lupus erythematosus,3,lupus erythematosus,dariers disease,scleroderma,0.2642,0.2363,0.0966
+65f7b7df48effe3ad7238404ca5318ce,melanoma,4,melanoma,squamous cell carcinoma,basal cell carcinoma,0.4808,0.1227,0.0724
+ac684a3d2464ae0fba4d90e4f898875d,mycosis fungoides,1,mycosis fungoides,psoriasis,allergic contact dermatitis,0.9506,0.0128,0.0059
+e894e98ec3b149d53b202e1cef0fa9ad,melanoma,1,melanoma,tungiasis,nematode infection,0.4831,0.1743,0.0667
+6756421ff9272a68082ca2508de2b1fe,scabies,5,scabies,vitiligo,keloid,0.2074,0.204,0.0785
+a8d1b8f97efb9cebccd244b212d77f28,squamous cell carcinoma,5,scabies,squamous cell carcinoma,dariers disease,0.2521,0.1185,0.1064
+9095b0fe47a5bca471c27e3b12967d00,scabies,5,erythema multiforme,nematode infection,dariers disease,0.4745,0.3157,0.0394
+570186d311485eaacea13a09b08750f5,nematode infection,5,nematode infection,vitiligo,erythema multiforme,0.9184,0.0132,0.0119
+6de74d3051ceafe10cf3f3e8c342bad8,nematode infection,3,nematode infection,hailey hailey disease,dariers disease,0.2624,0.1732,0.0826
+8c586b8e6eb725274f1846f2bea0f316,myiasis,3,myiasis,basal cell carcinoma,keloid,0.2285,0.1651,0.0981
+9016573f138e50e4bddb1e8013b763ff,squamous cell carcinoma,-1,neutrophilic dermatoses,tungiasis,granuloma pyogenic,0.1455,0.1357,0.1262
+cfd33156becb727f701a6ac348dacd1a,neutrophilic dermatoses,2,nematode infection,hailey hailey disease,keloid,0.3308,0.188,0.1319
+2d9ebe9cb6f414ec647c136fa3cab203,granuloma pyogenic,5,vitiligo,psoriasis,nematode infection,0.2587,0.1276,0.1142
+d2e55a1959fdb0563226fbada4e405b3,erythema multiforme,5,erythema multiforme,lupus erythematosus,neutrophilic dermatoses,0.3879,0.2653,0.1306
+8534d3ef1b724639556f67a44a6e40b1,lichen planus,2,myiasis,lupus erythematosus,scabies,0.2918,0.147,0.1279
+52d6fe66c12a24f00017f941267924b3,neutrophilic dermatoses,3,neutrophilic dermatoses,erythema multiforme,pityriasis rosea,0.7233,0.127,0.0458
+e506feeaccb24d6ff14cd5f73edeb65a,dariers disease,4,dariers disease,lupus erythematosus,allergic contact dermatitis,0.5418,0.1294,0.069
+e2d0f7a666d346a7f149185b23a42483,basal cell carcinoma,3,lupus erythematosus,allergic contact dermatitis,squamous cell carcinoma,0.2615,0.095,0.0752
+f1e37ba969bc27721bbb53e669f1d15e,psoriasis,4,dariers disease,psoriasis,scabies,0.3889,0.3875,0.096
+80602e43414e592443aee9e67fcca5c7,melanoma,4,basal cell carcinoma,melanoma,squamous cell carcinoma,0.3596,0.2939,0.0457
+2ac8ad788871bf2996d5048ea7ec3602,neutrophilic dermatoses,5,neutrophilic dermatoses,hailey hailey disease,nematode infection,0.8827,0.0219,0.0165
+131de64efe71f1fad3244403fb5444ee,nematode infection,3,nematode infection,granuloma annulare,pityriasis rosea,0.7343,0.0776,0.0754
+1f3ea52339d1cdb3cbcd44dd5e7322c0,nematode infection,5,nematode infection,vitiligo,lichen planus,0.4685,0.1387,0.0866
+543017d891174b7fe9443a4dfa537410,basal cell carcinoma,4,lichen planus,vitiligo,melanoma,0.1993,0.189,0.1589
+5557d8de5ee6c507a556c8d137880453,psoriasis,3,psoriasis,vitiligo,scabies,0.5771,0.0586,0.0528
+f974c0102afb36938c16aff5f61d15ad,scabies,3,pityriasis rosea,scabies,folliculitis,0.5242,0.0764,0.0759
+a87fe12853e17b4d06b74ecbd4928e34,scabies,3,lupus erythematosus,keloid,nematode infection,0.2871,0.1792,0.1464
+70ed11d557375a3b2d61708dd6dcbd71,myiasis,-1,tungiasis,folliculitis,myiasis,0.5089,0.3104,0.0422
+803384eb1d2624022ac97828af24a2d3,allergic contact dermatitis,3,allergic contact dermatitis,pityriasis rosea,hailey hailey disease,0.4666,0.0801,0.0727
+d4e521e09e4c832e500a726ac464e7ee,folliculitis,2,folliculitis,basal cell carcinoma,tungiasis,0.5839,0.0723,0.0599
+629833acb89c53ca20de0744ad014d0b,lichen planus,3,lichen planus,mycosis fungoides,photodermatoses,0.2468,0.1972,0.081
+214c8450fd0bd0383ace85d53ea73c8d,lupus erythematosus,3,lupus erythematosus,erythema multiforme,basal cell carcinoma,0.7001,0.0582,0.0361
+67779d244d362f8c4f089a5b4d4fc989,squamous cell carcinoma,4,squamous cell carcinoma,lichen planus,melanoma,0.5883,0.083,0.0506
+cb5433945f059d1deb3a08837148e63a,allergic contact dermatitis,3,kaposi sarcoma,allergic contact dermatitis,granuloma annulare,0.3258,0.3144,0.1123

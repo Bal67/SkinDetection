@@ -8,3 +8,11 @@ venv/
 
 # Downloaded dataset images (fetch with scripts/prepare_dataset.py --download url)
 data/images/
+
+# PanDerm (CC-BY-NC-ND 4.0): official code clone, pretrained weights, fine-tuned checkpoints and
+# cached features are NOT redistributed from this repo. See docs/PANDERM.md.
+third_party/
+models/panderm_base/pretrained/
+models/panderm_base/*.pt
+models/panderm_base/*.pth
+data/features/

@@ -77,7 +77,8 @@ def build_augmenter(seed: int):
 
 
 def make_dataset(x_uint8: np.ndarray, y: np.ndarray, sample_weight: Optional[np.ndarray] = None,
-                 batch_size: int = 32, training: bool = False, seed: int = 42):
+                 batch_size: int = 32, training: bool = False, seed: int = 42,
+                 normalization: str = "mobilenet_v2"):
     """tf.data pipeline: [augment (train only)] -> canonical normalize -> batch."""
     import tensorflow as tf
 
@@ -87,7 +88,7 @@ def make_dataset(x_uint8: np.ndarray, y: np.ndarray, sample_weight: Optional[np.
         ds = ds.shuffle(len(x_uint8), seed=seed, reshuffle_each_iteration=True)
         augment = build_augmenter(seed)
         ds = ds.map(lambda x, *rest: (augment(x), *rest), num_parallel_calls=tf.data.AUTOTUNE)
-    ds = ds.map(lambda x, *rest: (normalize(x), *rest), num_parallel_calls=tf.data.AUTOTUNE)
+    ds = ds.map(lambda x, *rest: (normalize(x, normalization), *rest), num_parallel_calls=tf.data.AUTOTUNE)
     return ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
 
@@ -111,13 +112,13 @@ def val_balanced_accuracy_callback(val_ds, y_val: np.ndarray):
     return _Cb()
 
 
-def train_two_stage(model, train_ds, val_ds, y_val, checkpoint_path: Path,
+def train_two_stage(model, train_ds, val_ds, y_val, checkpoint_path: Path, fine_tune_from: str,
                     head_epochs: int = 15, head_lr: float = 1e-3,
-                    finetune_epochs: int = 20, finetune_lr: float = 1e-5,
-                    fine_tune_from: str = "block_13_expand", patience: int = 5):
-    """Stage A: frozen backbone, train head. Stage B: unfreeze top of backbone (BN stays frozen),
-    recompile with a much smaller LR, continue. One ModelCheckpoint instance spans both stages so
-    the file on disk is the best validation checkpoint across the whole run."""
+                    finetune_epochs: int = 20, finetune_lr: float = 1e-5, patience: int = 5):
+    """Stage A: frozen backbone, train head. Stage B: unfreeze the backbone from `fine_tune_from`
+    (backbone-specific, see model.BACKBONES; BN stays frozen), recompile with a much smaller LR,
+    continue. One ModelCheckpoint instance spans both stages so the file on disk is the best
+    validation checkpoint across the whole run."""
     import keras
 
     from .model import unfreeze_top_of_backbone
