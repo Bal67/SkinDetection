@@ -1,1 +1,10 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.env
+.DS_Store
 
+# Downloaded dataset images (fetch with scripts/prepare_dataset.py --download url)
+data/images/

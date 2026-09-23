@@ -1,121 +1,184 @@
-# SkinDetection
+# SkinDetection: skin-condition classification measured across skin tones
 
-StreamLit Application: https://540skinconditionclassification.streamlit.app/
+> **Research prototype. Not a medical device, not a diagnosis, not clinically validated, and not a
+> replacement for a dermatologist.** Model outputs are visual-similarity scores among a fixed set of
+> 26 conditions and are frequently wrong.
 
-Google Colab: https://colab.research.google.com/drive/1rjWW2SNcuJgZAL7w6VqX38Wivb70Zm0U?usp=sharing
+## Purpose
 
-FitzPatrick 17k Dataset: https://github.com/mattgroh/fitzpatrick17k
+The research question here is not only "how accurate is the model?" but:
 
-Youtube Link: https://youtu.be/sDVSLhDg57c
+> **How accurate is the model, and does its performance materially change across skin tones?**
 
-AWS S3: https://aws.amazon.com/s3/
+Dermatology image datasets and models have historically under-represented darker skin. This POC
+trains a small image classifier and **reports its performance separately for every Fitzpatrick
+skin type (I–VI) and for lighter (I–III) vs. darker (IV–VI) skin**, with sample sizes and
+confidence intervals. It does not claim to have solved bias. It measures it.
 
-This project aims to automatically identify various skin conditions from images, specifically focusing on darker skin tones. The models used are a fine-tuned pre-trained MobileNetV2 model, a non-fine-tuned pre-trained MobileNetV2 model, and an SVM basic model.
+## Dataset
 
-## Table of Contents
+- **Fitzpatrick17k** ([Groh et al., 2021](https://github.com/mattgroh/fitzpatrick17k)); metadata is in
+  `data/fitzpatrick17k.csv`. The current model is trained on Fitzpatrick17k only. It has **not**
+  been trained on Google's SCIN dataset (see `docs/SCIN_INTEGRATION_PLAN.md` for future plans).
+- The subset used: the 26 conditions of the original project, images from `atlasdermatologico.com.br`
+  (the `dermaamin.com` images are excluded, as in the original project), minus rows the dataset's
+  QC flagged "wrongly labelled". **2,346 images** were downloadable (3 of 2,349 failed).
+- Skin tone is the dataset's `fitzpatrick_scale` annotation: an estimate made from the image by
+  annotators, not self-reported. The dataset's second annotation agrees with it only about 46% of
+  the time, so skin-tone labels are themselves noisy. 97 images have unknown skin type and are
+  reported as a separate "unknown" group.
+- There is no patient or lesion identifier, so different photos of the same patient may fall into
+  different splits. Exact duplicates and perceptual near-duplicates are grouped before splitting.
 
-- [Setup](#setup)
+## Limitations
 
-- [Main](#main)
+- Research prototype; **no clinical validation; not a medical device; not for diagnosis or triage.**
+- Only 26 conditions. Every image, including healthy skin or a non-skin photo, gets assigned to one
+  of them.
+- Small dataset (1,642 training images; some classes have fewer than 20 training images) from a
+  single atlas source, with textbook-style clinical photos that differ from phone photos taken by patients.
+- Skin-type annotations are noisy (see above), and subgroup test sets are small (e.g. Fitzpatrick I
+  and VI each have fewer than 30 test images), so per-type numbers have wide confidence intervals.
+- Possible patient-level leakage (no patient IDs).
+- Softmax scores are not calibrated probabilities.
 
-- [scripts](#scripts)
+## Architecture
 
-- [models](#models)
+```
+data/fitzpatrick17k.csv
+  └─ scripts/prepare_dataset.py    load → filter labels → drop duplicates → fetch images
+                                    → group near-duplicates → GROUP-LEVEL stratified split
+                                    → data/splits.csv (one row per original image: train/val/test)
+  └─ scripts/train.py              train+val only. On-the-fly augmentation (train only)
+                                    → MobileNetV2 two-stage fine-tuning → best-val checkpoint
+                                    → models/skin_mobilenetv2.keras + models/class_names.json
+  └─ scripts/evaluate.py           test split only → reports/ (overall, per class, per Fitzpatrick type)
+  └─ app.py                        Streamlit demo: same preprocessing, same class mapping
+```
 
-- [data](#data)
+Package `skin_detection/`:
 
-## Project Structure
-setup.py: Script for setting up the environment
+| module | responsibility |
+|---|---|
+| `config.py` | paths (all overridable via `SKIN_*` env vars), seed, default labels |
+| `data.py` | dataset adapter to a common schema, filtering, duplicate detection, group split, leakage checks, sample weights |
+| `preprocessing.py` | **the only** image preprocessing: EXIF orientation, RGB, resize, MobileNetV2 normalization |
+| `model.py` | model construction, stage-B unfreezing, validated save/load (model ↔ class names) |
+| `training.py` | image loading, augmentation, tf.data pipeline, two-stage training |
+| `evaluation.py` | metrics incl. Fitzpatrick-stratified metrics, gaps, CIs, calibration |
+| `inference.py` | top-k, uncertainty display rule |
 
-app.py: The main Streamlit app
+**Model:** ImageNet MobileNetV2 → GlobalAveragePooling → Dense(256, ReLU, L2 1e-4) → Dropout(0.5)
+→ softmax(26). Input 224×224.
 
-scripts/: Contains the scripts for generating predicting and processing data
+**Preprocessing** (identical everywhere): EXIF transpose → RGB → scale the longer side to 224
+(bilinear), then pad the shorter side symmetrically with black. There is no stretching and no
+cropping, so a lesion near the edge is not cut off. Then `x / 127.5 − 1` (MobileNetV2 normalization).
 
-dataset.py: Dataset loading and preprocessing
+**Training** (`scripts/train.py`):
+- *Stage A*: backbone frozen, head trained (Adam 1e-3, up to 15 epochs).
+- *Stage B (actual fine-tuning)*: layers from `block_13_expand` onward are unfrozen (last 4
+  inverted-residual blocks + final conv). **All BatchNormalization layers stay frozen**, and the
+  backbone always runs in inference mode. Recompiled with Adam 1e-5, up to 20 epochs.
+- Early stopping and checkpointing monitor **validation balanced
+  accuracy** (LR reduction monitors validation loss); the saved model is the best validation checkpoint across both stages.
+- Seeds are fixed (`--seed`, default 42); `--deterministic` enables TF op determinism.
 
-features.py: Processed features from the dataset
+**Augmentation** (training images only, on the fly, never saved): horizontal flip, rotation ±14°,
+translation ±5%, zoom ±10%, brightness ±10%, contrast ×0.9–1.1. **No color inversion, no hue or
+saturation shifts, no vertical flips.** Skin and lesion color carry diagnostic information, and
+recoloring light-skin images does not produce realistic darker-skin examples.
 
-non_fine_tuned_model.py: Contains code for non-fine-tuned ml model (non-fine-tuned MobileNetV2)
+**Class imbalance and skin-tone representation**: the original scripts undersampled every class to
+the rarest class, which discarded about 75% of images. Nothing is discarded now. Each training image
+gets a loss weight: tone groups (I–III / IV–VI / unknown) are weighted to equal total weight, then
+rescaled so every class carries equal total weight, clipped at 10× the mean.
 
-fine_tuned_model.py: Contains code for fine-tuned ml model (fine-tuned MobileNetV2)
+**Class mapping:** training writes `models/class_names.json` (class order + image size + resize mode).
+Loading fails loudly if the model's output size or input size disagrees with it.
 
-basicmodel.py: Contains code for non-neural network learning model (SVM model)
+## Setup
 
-models/: Contains the saved trained models
+```bash
+python -m venv .venv && source .venv/bin/activate   # Python 3.10-3.12
+pip install -r requirements-train.txt               # app only: pip install -r requirements.txt
+```
 
-data/: Contains the dataset
+## Reproduce
 
-requirements.txt: List of dependencies
+```bash
+# 1. Fetch images (~2.3k files, ~150 MB) into data/images/ and build data/splits.csv.
+#    data/splits.csv is committed. Re-running with the same seed and the same available images
+#    reproduces it.
+python scripts/prepare_dataset.py --download url --near-duplicates
+#    Alternative source: images in S3 as <prefix><md5hash>.jpg, credentials via the normal AWS chain
+#    SKIN_S3_BUCKET=my-bucket python scripts/prepare_dataset.py --download s3 --near-duplicates
 
-README.md
+# 2. Train (CPU is fine: roughly 1-2 h on a laptop; faster with a GPU)
+python scripts/train.py
 
+# 3. Final evaluation on the held-out test split
+python scripts/evaluate.py
+python scripts/evaluate.py --legacy      # the original 2024 model, for comparison (see caveat)
 
-## Usage
-Proceed to the Google Colab page that is linked at the top of this README.md. Once on the page, mount it to your own Google Drive and follow the instructions for each cell in the Google Colab notebook.
+# Tests
+pytest
+```
 
-Replace all constants in the code (or anywhere where you see a pathway) with the pathway to your local Google Drive folder/Google Drive pathway.
+**Held-out test set:** the test split in `data/splits.csv` is used **only** by `scripts/evaluate.py`.
+It must not be used for model selection, hyperparameter tuning, augmentation design, early stopping
+or threshold choices. Use `python scripts/evaluate.py --split val` during development.
 
-This project uses AWS S3 to store project photos. In the Google Colab, replace ['AWS_SECRET_ACCESS_KEY'] = ___ and ['AWS_ACCESS_KEY_ID'] = ___ with your own AWS Secret Access Key and Access Key ID. Replace ['AWS_REGION'] with the region that your bucket is created in. For this project, ['AWS_REGION'] = 'us-east-1'. Create an AWS S3 bucket or an AWS account if you have not created one. You can follow this link for more information about the S3 bucket: https://aws.amazon.com/s3/
+## Evaluation
 
-For the Streamlit application: Google Colab has a hard time opening Streamlit applications. To do so, you must run the final cell. At the bottom of that cell will be a link that will lead you to a tunnel website. The bottom cell will also provide you with an IP Address that will look as such (XX.XXX.XXX.XX). Insert that address into the tunnel when prompted for a passcode to access the Streamlit application.
+`scripts/evaluate.py` writes to `reports/`:
 
-# Model Evaluation
+- `metrics.json`: all metrics, machine-readable
+- `per_class.csv`: precision, recall, F1 and number of test images per class
+- `fitzpatrick_metrics.csv`: n, accuracy (95% bootstrap CI), balanced accuracy, macro
+  precision/recall/F1, top-3 accuracy, for Fitzpatrick I…VI, lighter (I–III), darker (IV–VI) and unknown
+- `per_class_recall_by_tone.csv`: per-class recall for lighter vs. darker skin
+- `confusion_matrix.csv/.png`, `fitzpatrick_accuracy.png`, `predictions.csv`
 
-## Evaluation Process and Metric Selection
+Overall metrics: accuracy, balanced accuracy, macro precision/recall/F1, top-3 accuracy, confusion
+matrix, and calibration (expected calibration error and a reliability table).
 
-The evaluation process involves splitting the data into training, validation, and testing sets (70-15-15), training the models, and then evaluating their performance on the test set. The primary metric used for evaluation is Accuracy, precision, and recall, which helped to provide an understanding of the model's ability to correctly classify skin conditions. 
+Fairness metrics: `accuracy_gap = lighter_accuracy − darker_accuracy` (positive means worse on darker
+skin), plus the same gap for balanced accuracy, macro recall, macro F1 and top-3 accuracy, and a
+bootstrap 95% CI for the accuracy gap. Groups with fewer than 100 test images are flagged
+`reliable: false`. Macro metrics inside a subgroup cover only the classes present in that subgroup.
+**A small or statistically insignificant gap is not evidence of fairness.** With these sample sizes
+the study can only detect large differences.
 
-## Data Processing Pipeline
+RESULTS_PLACEHOLDER
 
-Data Loading: Data is loaded into the script in CSV format.
+## Running the app
 
-Feature Extraction: Data is analyzed for relationships. Rows that contained faulty pathways were removed from df. Images were augmented based on the FitzPatrick Scale (<3 = Light; >3 = Dark), with Dark skin tones having more augmentations to the original image.
+```bash
+streamlit run app.py
+```
 
-Data Preparation: Data is split into features and column labels are added. Null values are removed. Data is split into training (70%), validation (15%), and testing sets (15%).
+The app loads `models/skin_mobilenetv2.keras` + `models/class_names.json`. If those don't exist, it
+loads the legacy model and says so in a banner. `SKIN_MODEL_PATH` / `SKIN_MODEL_META_PATH` override
+the paths. If loading fails, the app shows an error and makes no predictions. It never falls back
+to an untrained network. The app shows the top 3 model outputs, an uncertainty message when the top
+score is below 50% or the scores are spread out (these cut-offs are UX choices, not clinical
+thresholds), and a research disclaimer. It gives no treatment advice.
 
-Model Training: The naive, fine-tuned MobileNetV2, and non-fine tuned MobileNetV2 models are trained on the training data, with performance monitored on the validation set.
+## Legacy model
 
-Model Evaluation: Models are evaluated on the test data and accuracy recorded
+`models/finetuned_mobilenetv2.h5` (and `non_fine_tuned_mobilenetv2.h5`) are the original 2024
+models, kept for comparison. The scripts that produced them are in `scripts/legacy/` (see its README).
+Despite its name, the "fine-tuned" model has a frozen ImageNet backbone (verified: its backbone
+weights are identical to ImageNet's). It was evaluated on a split with augmentation leakage, so the
+previously reported ~56% accuracy is not a valid held-out estimate. Its class order was reconstructed as
+the alphabetical `LabelEncoder` order in `models/finetuned_mobilenetv2_class_names.json`. The old
+app's hard-coded list had "granuloma annulare" and "granuloma pyogenic" swapped (and the old app never
+loaded the trained weights at all).
 
-# Models Evaluated
+## Citation
 
-SVM Model: Baseline model using SVM 
-
-Naive Model: Non-fine-tuned pre-trained MobileNetV2 model.
-
-  Architecture:
-  
-    - Embedding Layer
-    - Pre-trained MobileNetV2 Backbone
-    - Output Layer
-
-
-
-Fine-Tuned Model: Fine-tuned MobileNetV2 model.
-
-  Architecture:
-    
-    - Embedding Layer
-    - Pre-trained MobileNetV2 Backbone
-    - Fully Connected Layer
-    - Dropout Layer
-    - Output Layer
-
-  
-## Results and Conclusions
-SVM Model Accuracy: ~22%
-
-Naive MobileNetV2 Model Accuracy: ~42%
-
-Fine-Tuned MobileNetV2 Model Accuracy: ~56%
-
-The project demonstrates that both naive and fine-tuned NCF models can provide accurate prediction of skin conditions, with the fine-tuned model showing significant improvements in performance. The SVM model serves as a good baseline but is outperformed by the NN models in capturing complex image features.
-
-# Acknowledgments
-Data sourced from the GitHub - Matt Groh (https://github.com/mattgroh/fitzpatrick17k)
-This project was developed as part of a machine learning course/project.
-
-# Citation
+```
 @inproceedings{groh2021evaluating,
   title={Evaluating deep neural networks trained on clinical images in dermatology with the fitzpatrick 17k dataset},
   author={Groh, Matthew and Harris, Caleb and Soenksen, Luis and Lau, Felix and Han, Rachel and Kim, Aerin and Koochek, Arash and Badri, Omar},
@@ -123,3 +186,4 @@ This project was developed as part of a machine learning course/project.
   pages={1820--1828},
   year={2021}
 }
+```

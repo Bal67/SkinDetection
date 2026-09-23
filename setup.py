@@ -1,32 +1,20 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
-    name="skin_condition_predictor",
-    version="0.1",
-    description="A Streamlit application to predict skin conditions using a fine-tuned MobileNetV2 model.",
-    author="Your Name",
-    author_email="your.email@example.com",
-    packages=find_packages(),
-    include_package_data=True,
+    name="skin_detection",
+    version="0.2.0",
+    description="Research POC: skin-condition image classification evaluated across Fitzpatrick skin types.",
+    packages=find_packages(include=["skin_detection", "skin_detection.*"]),
     install_requires=[
-        "streamlit",
-        "tensorflow",
-        "pandas",
-        "numpy",
-        "boto3",
-        "Pillow",
-        "scikit-learn"
+        "tensorflow>=2.16,<2.20",
+        "numpy>=1.26",
+        "pillow>=10.0",
+        "h5py>=3.10",
     ],
-    entry_points={
-        'console_scripts': [
-            'skin_condition_predictor = skin_condition_predictor.app:main'
-        ]
+    extras_require={
+        "app": ["streamlit>=1.50"],
+        "train": ["pandas>=2.1", "scikit-learn>=1.3", "matplotlib>=3.7", "requests>=2.31", "pytest>=8"],
+        "s3": ["boto3"],
     },
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
-    python_requires='>=3.6',
+    python_requires=">=3.10",
 )
-

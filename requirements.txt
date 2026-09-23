@@ -1,17 +1,8 @@
-numpy==1.26.0
-pandas==2.1.4
-nltk==3.6.2
-seaborn==0.11.1
-matplotlib==3.7.1
-scikit-learn == 1.4.2
-scipy
-tensorflow == 2.17.0
-keras==3.2.0
-xgboost==1.4.2
-lightgbm==3.2.1
-torch== 2.3.1
-scikeras == 0.13.0
-streamlit 
-setuptools>=45.0
-ml-dtypes == 0.3.1
-boto3
+# Runtime dependencies for the Streamlit app (inference only). Python 3.10-3.12.
+# Tested with: tensorflow 2.19.1 (bundles keras 3.15), numpy 2.1.3, pillow 12.3, h5py 3.16, streamlit 1.64.
+# TensorFlow pins compatible numpy / ml-dtypes / keras itself; do not pin those separately.
+tensorflow>=2.16,<2.20
+numpy>=1.26
+pillow>=10.0
+h5py>=3.10          # legacy .h5 model loading
+streamlit>=1.50
